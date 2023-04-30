@@ -12,9 +12,11 @@ views:
           - type: horizontal-stack
             cards:
               - type: custom:mushroom-entity-card
-                entity: sensor.stal_konijnen_sensor_2
+                entity: sensor.sensor_stal_ponies_temperature
+                name: Stal Ponies
               - type: custom:mushroom-entity-card
-                entity: sensor.stal_ponies_sensor_2
+                entity: sensor.lumi_lumi_weather_temperature
+                name: Stal Konijnen
           - camera_view: auto
             type: picture-glance
             title: Voordeur
@@ -150,7 +152,7 @@ views:
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
-            title: Stallen
+            title: Temperatuur
           - type: horizontal-stack
             cards:
               - type: horizontal-stack
@@ -187,59 +189,64 @@ views:
                         color: '#ff5722'
                     entities:
                       - entity: sensor.sensor_stal_ponies_temperature
-          - type: custom:mini-graph-card
-            name: Konijnen buiten
-            hour24: true
-            color_thresholds:
-              - value: 0
-                color: '#A4C3D2'
-              - color: '#79D2B3'
-              - color: '#BBE492'
-              - value: 20
-                color: '#FCF570'
-              - value: 25
-                color: '#fff0d9'
-              - value: 30
-                color: '#ff5722'
-            entities:
-              - entity: sensor.lumi_lumi_weather_temperature_2
-      - type: vertical-stack
-        cards:
-          - type: custom:mushroom-title-card
-            title: Automaat
-            subtitle: ""
-          - type: custom:mushroom-template-card
-            primary: 'Next: {{ state_attr(''sensor.horse_feeder_next_feeding'', ''nextFeedingSlotName'')}}'
-            icon: mdi:silo
-            entity: sensor.horse_feeder_next_feeding
-            secondary: 'Previous {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingSlotName'')}} at {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingTime'') }} '
-            badge_icon: ""
-            fill_container: false
-            tap_action:
-              action: url
-              url_path: http://192.168.1.166/
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
-          - type: custom:timer-bar-card
-            guess_mode: true
-            end_time:
-              state: true
-            entities:
-              - entity: sensor.horse_feeder_next_feeding_time
-                name: Time to next
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: Konijnen buiten
+                hour24: true
+                color_thresholds:
+                  - value: 0
+                    color: '#A4C3D2'
+                  - color: '#79D2B3'
+                  - color: '#BBE492'
+                  - value: 20
+                    color: '#FCF570'
+                  - value: 25
+                    color: '#fff0d9'
+                  - value: 30
+                    color: '#ff5722'
+                entities:
+                  - entity: sensor.lumi_lumi_weather_temperature_2
+              - type: custom:mini-graph-card
+                name: Moestuin buiten
+                hour24: true
+                color_thresholds:
+                  - value: 0
+                    color: '#A4C3D2'
+                  - color: '#79D2B3'
+                  - color: '#BBE492'
+                  - value: 20
+                    color: '#FCF570'
+                  - value: 25
+                    color: '#fff0d9'
+                  - value: 30
+                    color: '#ff5722'
+                entities:
+                  - entity: sensor.tze200_myd45weu_ts0601_temperature
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
             title: Moestuin
           - type: entities
             entities:
+              - entity: timer.watermoestuin
+                type: custom:timer-bar-card
+                name: Bewatering
               - entity: sensor.tze200_myd45weu_ts0601_soil_moisture
-                name: Soil moisture
-              - entity: sensor.tze200_myd45weu_ts0601_temperature
-                name: Temperature
-            title: Sensor moestuin
+                secondary_info: last-updated
+                name: Vochtigheid grond
+            footer:
+              type: buttons
+              entities:
+                - entity: timer.watermoestuin
+                  name: Start bewatering
+                  icon: mdi:play
+                  tap_action:
+                    action: call-service
+                    service: timer.start
+                    service_data:
+                      entity_id: timer.watermoestuin
+            state_color: true
           - type: custom:popup-card
             entity: sensor.tze200_myd45weu_ts0601_soil_moisture
             dismissable: true
@@ -267,24 +274,6 @@ views:
                     - type: entity
                       entity: sensor.tze200_myd45weu_ts0601_battery
                   alignment: end
-          - type: entities
-            entities:
-              - entity: timer.watermoestuin
-                type: custom:timer-bar-card
-                name: Moestuin
-            footer:
-              type: buttons
-              entities:
-                - entity: timer.watermoestuin
-                  name: Start
-                  icon: mdi:play
-                  tap_action:
-                    action: call-service
-                    service: timer.start
-                    service_data:
-                      entity_id: timer.watermoestuin
-            title: Bewatering
-            state_color: true
           - type: custom:popup-card
             entity: timer.watermoestuin
             dismissable: true
@@ -307,6 +296,32 @@ views:
                 end_date: false
                 icon: true
                 separator: false
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Automaat
+            subtitle: ""
+          - type: custom:mushroom-template-card
+            primary: 'Next: {{ state_attr(''sensor.horse_feeder_next_feeding'', ''nextFeedingSlotName'')}}'
+            icon: mdi:silo
+            entity: sensor.horse_feeder_next_feeding
+            secondary: 'Previous {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingSlotName'')}} at {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingTime'') }} '
+            badge_icon: ""
+            fill_container: false
+            tap_action:
+              action: url
+              url_path: http://192.168.1.166/
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:timer-bar-card
+            guess_mode: true
+            end_time:
+              state: true
+            entities:
+              - entity: sensor.horse_feeder_next_feeding_time
+                name: Time to next
   - title: Weather
     path: weather
     icon: mdi:weather-rainy
@@ -478,6 +493,59 @@ views:
         card:
           type: vertical-stack
           title: Partitions
+  - title: Climate
+    path: climate
+    icon: mdi:home-thermometer-outline
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Gelijkvloers
+          - type: custom:auto-entities
+            filter:
+              include:
+                - entity_id: climate.*
+                  options:
+                    type: custom:mushroom-climate-card
+                    show_temperature_control: true
+                    collapsible_controls: true
+                    fill_container: true
+              exclude:
+                - entity_id: climate.thuis
+                - area: Bedroom
+                - area: Kids room
+                - area: Office
+                - area: Bathroom - Upstairs
+            card_param: cards
+            card:
+              square: true
+              type: grid
+              columns: 2
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Verdiep
+          - type: custom:auto-entities
+            filter:
+              include:
+                - entity_id: climate.*
+                  options:
+                    type: custom:mushroom-climate-card
+                    show_temperature_control: true
+                    collapsible_controls: true
+                    fill_container: true
+              exclude:
+                - entity_id: climate.thuis
+                - area: Bathroom - Downstairs
+                - area: Downstairs
+                - area: Kitchen
+                - area: Living Room
+            card_param: cards
+            card:
+              square: true
+              type: grid
+              columns: 2
   - title: System
     path: system
     icon: mdi:server-network
