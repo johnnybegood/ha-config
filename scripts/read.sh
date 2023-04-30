@@ -15,17 +15,22 @@ echo "[INFO] CLEAR EXISTING LOCAL CONFIG"
 echo "-------------------------------------------------------"
 cd $DIR
 rm -rf ../config/ || true
+rm -rf ../dashboards/ || true
 mkdir ../config/
+mkdir ../dashboards/
 
 echo "-------------------------------------------------------"
 echo "[INFO] COPY FROM ${HOST}"
 echo "-------------------------------------------------------"
 cd $DIR
-scp -r $USER@$HOST:~/config/*.* ../config/
+scp $USER@$HOST:~/config/*.* ../config/
+scp $USER@$HOST:~/config/.HA_VERSION ../config/
+scp $USER@$HOST:~/config/.storage/lovelace ../dashboards/lovelace.json
 
 echo "-------------------------------------------------------"
-echo "[INFO] REMOVING UNNEEDED FILES"
+echo "[INFO] CONVERT LOVELACE TO YAML"
 echo "-------------------------------------------------------"
-cd ..
-echo "Deleting files in gitignore"
-git clean -fX
+cd ../dashboards
+yq -P '.data.config' -o yaml lovelace.json > lovelace.yaml
+echo "Delete JSON variant"
+rm lovelace.json

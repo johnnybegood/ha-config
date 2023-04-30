@@ -1,0 +1,524 @@
+views:
+  - title: Home
+    icon: mdi:home
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Buiten
+          - type: custom:clock-weather-card
+            entity: weather.buienradar
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: sensor.stal_konijnen_sensor_2
+              - type: custom:mushroom-entity-card
+                entity: sensor.stal_ponies_sensor_2
+          - camera_view: auto
+            type: picture-glance
+            title: Voordeur
+            entities:
+              - entity: binary_sensor.cam_voordeur_motion
+              - entity: binary_sensor.voordeur
+              - entity: binary_sensor.deur_wasplaats
+              - entity: binary_sensor.cam_voordeur_car_occupancy
+              - entity: binary_sensor.cam_tuin_person_occupancy
+            camera_image: camera.cam_voordeur
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Gelijkvloers
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-climate-card
+                entity: climate.living_keuken
+                name: Keuken/Living
+                hvac_modes: []
+                collapsible_controls: false
+                show_temperature_control: true
+                layout: vertical
+              - type: custom:mushroom-light-card
+                entity: light.innr_sp_220_switch
+                layout: vertical
+                name: Lamp
+                fill_container: true
+                collapsible_controls: false
+                use_light_color: false
+                show_brightness_control: false
+                show_color_control: false
+                show_color_temp_control: false
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                entities:
+                  - entity: sensor.airthings_wave_125131_co2
+                    name: CO2
+              - type: custom:mini-graph-card
+                entities:
+                  - entity: sensor.airthings_wave_125131_voc
+                    name: VOC
+              - type: custom:mini-graph-card
+                entities:
+                  - entity: sensor.airthings_wave_125131_radon_longterm_average
+                    name: Radon
+          - type: custom:mushroom-vacuum-card
+            entity: vacuum.robin
+            commands:
+              - start_pause
+              - return_home
+          - type: custom:auto-entities
+            filter:
+              include:
+                - device_manufacturer: KSENIA
+                  state: on
+                  options:
+                    type: custom:mushroom-entity-card
+              exclude:
+                - entity_id: binary_sensor.ksenia_lares_lares_zones_*
+                - entity_id: binary_sensor.sabotage_*
+            card_param: cards
+            card:
+              type: vertical-stack
+            show_empty: false
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Wouter - Auto
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: binary_sensor.ix_xdrive40_charging_status
+                name: iX Charging
+                fill_container: false
+                layout: vertical
+              - type: custom:mushroom-entity-card
+                entity: sensor.ix_xdrive40_remaining_battery_percent
+                name: iX Battery
+                fill_container: false
+                layout: vertical
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Power
+            title_tap_action:
+              action: navigate
+              navigation_path: /energy
+          - type: custom:mini-graph-card
+            name: Consumptie
+            hour24: true
+            points_per_hour: 1
+            tap_action:
+              action: navigate
+              navigation_path: /energy
+            color_thresholds:
+              - value: 0
+                color: '#A4C3D2'
+              - color: '#79D2B3'
+              - color: '#BBE492'
+              - value: 3500
+                color: '#FCF570'
+              - color: '#fff0d9'
+              - value: 10000
+                color: '#ff5722'
+            entities:
+              - entity: sensor.p1_meter_5c2faf058214_active_power
+          - type: custom:mushroom-entity-card
+            entity: sensor.p1_meter_5c2faf058214_peak_demand_current_month
+            name: Maand piek
+  - title: Garden
+    path: garden
+    icon: mdi:forest-outline
+    badges: []
+    cards:
+      - type: custom:mushroom-title-card
+        title: Cameras
+      - type: horizontal-stack
+        cards:
+          - camera_view: auto
+            type: picture-glance
+            entities:
+              - entity: binary_sensor.camera1_motion
+            title: Achter
+            camera_image: camera.camera1_sub
+          - camera_view: auto
+            type: picture-glance
+            title: Stal
+            entities:
+              - entity: binary_sensor.stal_motion
+            camera_image: camera.stal_sub
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Stallen
+          - type: horizontal-stack
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Stal konijnen
+                    hour24: true
+                    color_thresholds:
+                      - value: 0
+                        color: '#A4C3D2'
+                      - color: '#79D2B3'
+                      - color: '#BBE492'
+                      - value: 20
+                        color: '#FCF570'
+                      - value: 25
+                        color: '#fff0d9'
+                      - value: 30
+                        color: '#ff5722'
+                    entities:
+                      - entity: sensor.lumi_lumi_weather_temperature
+                  - type: custom:mini-graph-card
+                    name: Stal ponies
+                    hour24: true
+                    color_thresholds:
+                      - value: 0
+                        color: '#A4C3D2'
+                      - color: '#79D2B3'
+                      - color: '#BBE492'
+                      - value: 20
+                        color: '#FCF570'
+                      - value: 25
+                        color: '#fff0d9'
+                      - value: 30
+                        color: '#ff5722'
+                    entities:
+                      - entity: sensor.sensor_stal_ponies_temperature
+          - type: custom:mini-graph-card
+            name: Konijnen buiten
+            hour24: true
+            color_thresholds:
+              - value: 0
+                color: '#A4C3D2'
+              - color: '#79D2B3'
+              - color: '#BBE492'
+              - value: 20
+                color: '#FCF570'
+              - value: 25
+                color: '#fff0d9'
+              - value: 30
+                color: '#ff5722'
+            entities:
+              - entity: sensor.lumi_lumi_weather_temperature_2
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Automaat
+            subtitle: ""
+          - type: custom:mushroom-template-card
+            primary: 'Next: {{ state_attr(''sensor.horse_feeder_next_feeding'', ''nextFeedingSlotName'')}}'
+            icon: mdi:silo
+            entity: sensor.horse_feeder_next_feeding
+            secondary: 'Previous {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingSlotName'')}} at {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingTime'') }} '
+            badge_icon: ""
+            fill_container: false
+            tap_action:
+              action: url
+              url_path: http://192.168.1.166/
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:timer-bar-card
+            guess_mode: true
+            end_time:
+              state: true
+            entities:
+              - entity: sensor.horse_feeder_next_feeding_time
+                name: Time to next
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Moestuin
+          - type: entities
+            entities:
+              - entity: sensor.tze200_myd45weu_ts0601_soil_moisture
+                name: Soil moisture
+              - entity: sensor.tze200_myd45weu_ts0601_temperature
+                name: Temperature
+            title: Sensor moestuin
+          - type: custom:popup-card
+            entity: sensor.tze200_myd45weu_ts0601_soil_moisture
+            dismissable: true
+            title: Moestuin vochtigheid
+            size: wide
+            card:
+              type: vertical-stack
+              cards:
+                - type: statistics-graph
+                  chart_type: line
+                  period: day
+                  entities:
+                    - sensor.tze200_myd45weu_ts0601_soil_moisture
+                  stat_types:
+                    - mean
+                    - min
+                    - max
+                  days_to_show: 7
+                - type: custom:mushroom-chips-card
+                  chips:
+                    - type: entity
+                      entity: sensor.tze200_myd45weu_ts0601_soil_moisture
+                      content_info: last-updated
+                      icon: mdi:clock-check-outline
+                    - type: entity
+                      entity: sensor.tze200_myd45weu_ts0601_battery
+                  alignment: end
+          - type: entities
+            entities:
+              - entity: timer.watermoestuin
+                type: custom:timer-bar-card
+                name: Moestuin
+            footer:
+              type: buttons
+              entities:
+                - entity: timer.watermoestuin
+                  name: Start
+                  icon: mdi:play
+                  tap_action:
+                    action: call-service
+                    service: timer.start
+                    service_data:
+                      entity_id: timer.watermoestuin
+            title: Bewatering
+            state_color: true
+          - type: custom:popup-card
+            entity: timer.watermoestuin
+            dismissable: true
+            title: Bewatering geschiedenis
+            size: wide
+            card:
+              type: custom:logbook-card
+              entity: switch.valve_tuin_switch
+              collapse: 2
+              title: Bewatering
+              state_map:
+                - label: Druppelen
+                  value: on
+              hidden_state:
+                - off
+              show:
+                state: true
+                duration: true
+                start_date: true
+                end_date: false
+                icon: true
+                separator: false
+  - title: Weather
+    path: weather
+    icon: mdi:weather-rainy
+    badges: []
+    cards:
+      - show_name: true
+        show_state: false
+        camera_view: auto
+        type: picture-entity
+        entity: camera.buienradar
+        name: Buienradar
+        camera_image: camera.buienradar
+      - type: custom:auto-entities
+        filter:
+          include:
+            - entity_id: sensor.buienradar_*
+              options:
+                type: custom:mushroom-entity-card
+          exclude:
+            - entity_id: sensor.buienradar_rain*
+            - entity_id: sensor.buienradar_*d*
+        sort:
+          method: state
+          reverse: true
+        card_param: cards
+        card:
+          type: vertical-stack
+          title: 1 uur
+          exclude:
+            - entity_id: sensor.buienradar_rain*
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: '{{ (as_timestamp(now()) + (1*24*3600))  | timestamp_custom("%A") }} - Morgen'
+          - type: custom:auto-entities
+            filter:
+              include:
+                - entity_id: sensor.buienradar_*1d*
+                  options:
+                    type: custom:mushroom-entity-card
+            card_param: cards
+            card:
+              type: vertical-stack
+          - type: custom:mushroom-title-card
+            title: '{{ (as_timestamp(now()) + (2*24*3600))  | timestamp_custom("%A") }} - Overmorgen'
+          - type: custom:auto-entities
+            filter:
+              include:
+                - entity_id: sensor.buienradar_*2d*
+                  options:
+                    type: custom:mushroom-entity-card
+            card_param: cards
+            card:
+              type: vertical-stack
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: '{{ (as_timestamp(now()) + (3*24*3600))  | timestamp_custom("%A") }}'
+          - type: custom:auto-entities
+            filter:
+              include:
+                - entity_id: sensor.buienradar_*3d*
+                  options:
+                    type: custom:mushroom-entity-card
+            card_param: cards
+            card:
+              type: vertical-stack
+          - type: custom:mushroom-title-card
+            title: '{{ (as_timestamp(now()) + (4*24*3600))  | timestamp_custom("%A") }}'
+          - type: custom:auto-entities
+            filter:
+              include:
+                - entity_id: sensor.buienradar_*4d*
+                  options:
+                    type: custom:mushroom-entity-card
+            card_param: cards
+            card:
+              type: vertical-stack
+          - type: custom:mushroom-title-card
+            title: '{{ (as_timestamp(now()) + (5*24*3600))  | timestamp_custom("%A") }}'
+          - type: custom:auto-entities
+            filter:
+              include:
+                - entity_id: sensor.buienradar_*5d*
+                  options:
+                    type: custom:mushroom-entity-card
+            card_param: cards
+            card:
+              type: vertical-stack
+  - icon: mdi:shield-lock
+    title: Protect
+    path: protect
+    badges: []
+    cards:
+      - type: custom:frigate-card
+        cameras:
+          - camera_entity: camera.cam_voordeur
+          - camera_entity: camera.cam_tuin
+        view:
+          dark_mode: auto
+          update_cycle_camera: true
+          scan:
+            enabled: true
+        menu:
+          style: outside
+          position: bottom
+      - type: custom:auto-entities
+        filter:
+          include:
+            - device_manufacturer: KSENIA
+              entity_id: binary_sensor.*
+              options:
+                type: custom:mushroom-entity-card
+          exclude:
+            - entity_id: binary_sensor.ksenia_lares_lares_zones_*
+            - entity_id: binary_sensor.sabotage_*
+            - entity_id: binary_sensor.rook_*
+            - entity_id: binary_sensor.*deur*
+        sort:
+          method: state
+          reverse: true
+        card_param: cards
+        card:
+          type: vertical-stack
+          title: Raam/Beweging
+      - type: custom:auto-entities
+        filter:
+          include:
+            - entity_id: binary_sensor.*deur*
+              device_manufacturer: KSENIA
+              options:
+                type: custom:mushroom-entity-card
+          exclude:
+            - entity_id: binary_sensor.ksenia_lares_lares_zones_*
+            - entity_id: binary_sensor.sabotage_*
+            - entity_id: binary_sensor.rook_*
+        sort:
+          method: state
+          reverse: true
+        card_param: cards
+        card:
+          type: vertical-stack
+          title: Deuren
+      - type: custom:auto-entities
+        filter:
+          include:
+            - entity_id: binary_sensor.rook_*
+              device_manufacturer: KSENIA
+              options:
+                type: custom:mushroom-entity-card
+        sort:
+          method: state
+          reverse: true
+        card_param: cards
+        card:
+          type: vertical-stack
+          title: Deuren
+      - type: custom:auto-entities
+        filter:
+          include:
+            - device_manufacturer: KSENIA
+              entity_id: sensor.*
+              options:
+                type: custom:mushroom-entity-card
+        sort:
+          method: state
+          reverse: true
+        card_param: cards
+        card:
+          type: vertical-stack
+          title: Partitions
+  - title: System
+    path: system
+    icon: mdi:server-network
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - entity: sensor.server_cpu_load_average_15_min
+            name: CPU load average (15 min)
+          - entity: sensor.server_cpu_load_average_5_min
+            name: CPU load average (5 min)
+          - entity: sensor.server_cpu_utilization_total
+            name: CPU utilization (total)
+          - entity: sensor.server_cpu_utilization_user
+            name: CPU utilization (user)
+          - entity: sensor.server_download_throughput
+            name: Download throughput
+          - entity: sensor.server_memory_available_real
+            name: Memory available (real)
+          - entity: sensor.server_memory_available_swap
+            name: Memory available (swap)
+          - entity: sensor.server_memory_total_real
+            name: Memory total (real)
+          - entity: sensor.server_memory_total_swap
+            name: Memory total (swap)
+          - entity: sensor.server_memory_usage_real
+            name: Memory usage (real)
+          - entity: binary_sensor.server_security_status
+            name: Security status
+          - entity: sensor.server_upload_throughput
+            name: Upload throughput
+        title: server
+      - type: custom:auto-entities
+        card:
+          type: entities
+        sort:
+          method: state
+          numeric: true
+        filter:
+          include:
+            - domain: sensor
+              attributes:
+                device_class: battery
+          exclude: []
