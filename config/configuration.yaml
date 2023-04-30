@@ -1,0 +1,50 @@
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+evohome:
+  username: !secret evohome_user
+  password: !secret evohome_password
+  
+sensor:
+    - platform: systemmonitor
+      resources:
+      - type: disk_use_percent
+      - type: memory_use_percent
+      - type: processor_use
+      
+template:
+  - sensor:
+      - name: "Horse Feeder - Next feeding time"
+        state: "{{ as_timestamp(states('sensor.horse_feeder_next_feeding')) }}"
+        
+      - name: "Horse Feeder - Next last time"
+        device_class: timestamp
+        state: "{{ states('sensor.horse_feeder_last_feeding') }}"
+        
+rest:
+  - scan_interval: 60
+    resource: http://192.168.1.167/api/feeding
+    sensor:
+      - name: "Horse Feeder - Next feeding"
+        value_template: "{{ value_json.nextFeedingTime }}"
+        json_attributes:
+          - "nextFeedingTime"
+          - "nextFeedingSlotName"
+      - name: "Horse Feeder - Last feeding"
+        value_template: "{{ value_json.previousFeedingTime }}"
+        json_attributes:
+          - "previousFeedingTime"
+          - "previousFeedingSlotName"
