@@ -1,0 +1,16 @@
+.HA_VERSION
+.cloud/
+.homekit.state
+.storage/
+.uuid
+OZW_Log.txt
+home-assistant.log
+home-assistant_v2.db
+pyozw.sqlite
+tts/
+zwcfg_0xe8aba575.xml
+zwave_device_config.yaml
+zwscene.xml
+.DS_Store
+.idea
+secrets.yaml
