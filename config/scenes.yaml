@@ -1,0 +1,54 @@
+- id: '1677425720556'
+  name: Sfeer verlichting
+  entities:
+    light.innr_sp_220_switch:
+      supported_color_modes:
+      - onoff
+      friendly_name: Keuken lamp
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+  icon: mdi:lamps
+  metadata:
+    light.innr_sp_220_switch:
+      entity_only: true
+- id: '1677425786216'
+  name: Sfeer verlichting uit
+  entities:
+    light.innr_sp_220_switch:
+      supported_color_modes:
+      - onoff
+      friendly_name: Keuken lamp
+      supported_features: 0
+      state: 'off'
+  icon: mdi:lamps-outline
+  metadata:
+    light.innr_sp_220_switch:
+      entity_only: true
+- id: '1677426005316'
+  name: Lore dag
+  entities:
+    light.innr_sp_220_switch_2:
+      supported_color_modes:
+      - onoff
+      friendly_name: Lore nachtlamp
+      supported_features: 0
+      state: 'off'
+  icon: mdi:lightbulb-off
+  metadata:
+    light.innr_sp_220_switch_2:
+      entity_only: true
+- id: '1677426028294'
+  name: Lore nacht
+  entities:
+    light.innr_sp_220_switch_2:
+      supported_color_modes:
+      - onoff
+      friendly_name: Lore nachtlamp
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+  icon: mdi:lightbulb
+  metadata:
+    light.innr_sp_220_switch_2:
+      entity_only: true

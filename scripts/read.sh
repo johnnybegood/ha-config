@@ -21,11 +21,11 @@ echo "-------------------------------------------------------"
 echo "[INFO] COPY FROM ${HOST}"
 echo "-------------------------------------------------------"
 cd $DIR
-scp -r $USER@$HOST:~/config ../
+scp -r $USER@$HOST:~/config/*.* ../config/
 
 echo "-------------------------------------------------------"
 echo "[INFO] REMOVING UNNEEDED FILES"
 echo "-------------------------------------------------------"
-cd $DIR
+cd ..
 echo "Deleting files in gitignore"
 git clean -fX

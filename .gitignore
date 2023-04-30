@@ -5,7 +5,10 @@
 .uuid
 OZW_Log.txt
 home-assistant.log
-home-assistant_v2.db
+*.db
+*.db-shm
+*.db-wal
+*.log.*
 pyozw.sqlite
 tts/
 zwcfg_0xe8aba575.xml
@@ -14,3 +17,4 @@ zwscene.xml
 .DS_Store
 .idea
 secrets.yaml
+aircast.xml

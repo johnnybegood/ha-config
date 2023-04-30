@@ -1,0 +1,139 @@
+- id: '1677425932357'
+  alias: Morning
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 0
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.sfeer_verlichting_uit
+    metadata: {}
+  - service: scene.turn_on
+    target:
+      entity_id: scene.lore_dag
+    metadata: {}
+  mode: single
+- id: '1677426092006'
+  alias: Morning - dark
+  description: ''
+  trigger:
+  - platform: time
+    at: 05:00:00
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.sfeer_verlichting
+    metadata: {}
+  mode: single
+- id: '1677426135907'
+  alias: Sunset
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: 0
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.sfeer_verlichting
+    metadata: {}
+  mode: single
+- id: '1677426175883'
+  alias: Sleep
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:30:00'
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.sfeer_verlichting_uit
+    metadata: {}
+  mode: single
+- id: '1677426217383'
+  alias: Sleep kids
+  description: ''
+  trigger:
+  - platform: time
+    at: '20:00:00'
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.lore_nacht
+    metadata: {}
+  mode: single
+- id: '1681129255425'
+  alias: Verwarming keuken/schuifraam
+  description: ''
+  use_blueprint:
+    path: SmartLiving.Rocks/window-open-climate-off.yaml
+    input:
+      window_entity: binary_sensor.schuifraam
+      minimum_open_time: 60
+      minimum_close_time: 60
+      climate_target: climate.living_keuken
+- id: '1681129811337'
+  alias: Nachtlicht - Keuken
+  description: ''
+  use_blueprint:
+    path: Blackshome/sensor-light.yaml
+    input:
+      motion_trigger:
+      - binary_sensor.keuken
+      include_sun: sun_enabled
+      include_time: time_enabled
+      before_time: 05:00:00
+      light_switch:
+        entity_id: light.innr_sp_220_switch
+- id: '1682431869099'
+  alias: Low battery level alert
+  description: ''
+  use_blueprint:
+    path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
+    input:
+      actions:
+      - service: notify.notify
+        data:
+          title: Low battery
+          message: Low battery detected for {{sensors}}
+- id: '1682799509784'
+  alias: Water tuin start
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - timer.watermoestuin
+    to: active
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 61eb1d7b85861127eec592fe53726d3c
+    entity_id: switch.valve_tuin_switch
+    domain: switch
+  mode: single
+- id: '1682799647623'
+  alias: Water tuin stop
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - timer.watermoestuin
+    to: idle
+  - platform: state
+    entity_id:
+    - timer.watermoestuin
+    to: paused
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 61eb1d7b85861127eec592fe53726d3c
+    entity_id: switch.valve_tuin_switch
+    domain: switch
+  mode: single
