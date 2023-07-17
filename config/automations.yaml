@@ -137,3 +137,17 @@
     entity_id: switch.valve_tuin_switch
     domain: switch
   mode: single
+- id: '1684064279466'
+  alias: Knop - Bewatering
+  description: ''
+  trigger:
+  - device_id: 5276f7a099d12bb3d2c609c285834eb1
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_on
+  condition: []
+  action:
+  - service: script.bewateringtimerstart
+    data: {}
+  mode: single

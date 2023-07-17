@@ -1,0 +1,9 @@
+bewateringtimerstart:
+  alias: BewateringTimerStart
+  sequence:
+  - service: timer.start
+    data:
+      entity_id: timer.watermoestuin
+      duration: '{{ states(''input_select.waterdoorlooptijd'') }}'
+  mode: single
+  icon: mdi:timer-play

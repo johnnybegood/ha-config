@@ -86,22 +86,6 @@ views:
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
-            title: Wouter - Auto
-          - type: horizontal-stack
-            cards:
-              - type: custom:mushroom-entity-card
-                entity: binary_sensor.ix_xdrive40_charging_status
-                name: iX Charging
-                fill_container: false
-                layout: vertical
-              - type: custom:mushroom-entity-card
-                entity: sensor.ix_xdrive40_remaining_battery_percent
-                name: iX Battery
-                fill_container: false
-                layout: vertical
-      - type: vertical-stack
-        cards:
-          - type: custom:mushroom-title-card
             title: Power
             title_tap_action:
               action: navigate
@@ -229,24 +213,20 @@ views:
             title: Moestuin
           - type: entities
             entities:
-              - entity: timer.watermoestuin
-                type: custom:timer-bar-card
-                name: Bewatering
               - entity: sensor.tze200_myd45weu_ts0601_soil_moisture
                 secondary_info: last-updated
                 name: Vochtigheid grond
+              - entity: timer.watermoestuin
+                type: custom:timer-bar-card
+                name: Bewatering
+              - entity: input_select.waterdoorlooptijd
+                name: 'Looptijd bewatering '
+            state_color: true
             footer:
               type: buttons
               entities:
-                - entity: timer.watermoestuin
-                  name: Start bewatering
-                  icon: mdi:play
-                  tap_action:
-                    action: call-service
-                    service: timer.start
-                    service_data:
-                      entity_id: timer.watermoestuin
-            state_color: true
+                - entity: script.bewateringtimerstart
+                  name: Start
           - type: custom:popup-card
             entity: sensor.tze200_myd45weu_ts0601_soil_moisture
             dismissable: true
@@ -478,7 +458,7 @@ views:
         card_param: cards
         card:
           type: vertical-stack
-          title: Deuren
+          title: Rook
       - type: custom:auto-entities
         filter:
           include:
