@@ -21,12 +21,55 @@ views:
             type: picture-glance
             title: Voordeur
             entities:
-              - entity: binary_sensor.cam_voordeur_motion
+              - entity: binary_sensor.cam_voordeur_person_occupancy
+              - entity: binary_sensor.cam_voordeur_car_occupancy
               - entity: binary_sensor.voordeur
               - entity: binary_sensor.deur_wasplaats
-              - entity: binary_sensor.cam_voordeur_car_occupancy
-              - entity: binary_sensor.cam_tuin_person_occupancy
             camera_image: camera.cam_voordeur
+          - type: custom:popup-card
+            entity: binary_sensor.cam_voordeur_car_occupancy
+            dismissable: true
+            size: normal
+            title: Wagen
+            card:
+              type: vertical-stack
+              cards:
+                - type: history-graph
+                  entities:
+                    - entity: binary_sensor.cam_voordeur_car_occupancy
+                  hours_to_show: 2
+                - camera_view: auto
+                  type: picture-glance
+                  title: Persoon
+                  entities: []
+                  camera_image: camera.cam_voordeur_car
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/camera
+                  hold_action:
+                    action: none
+            right_button_action: {}
+          - type: custom:popup-card
+            entity: binary_sensor.cam_voordeur_person_occupancy
+            dismissable: true
+            size: normal
+            card:
+              type: vertical-stack
+              cards:
+                - type: history-graph
+                  entities:
+                    - entity: binary_sensor.cam_voordeur_person_occupancy
+                  hours_to_show: 2
+                - camera_view: auto
+                  type: picture-glance
+                  title: Persoon
+                  entities: []
+                  camera_image: camera.cam_voordeur_person
+                  tap_action:
+                    action: none
+                  hold_action:
+                    action: none
+            title: Persoon voordeur
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
@@ -40,16 +83,28 @@ views:
                 collapsible_controls: false
                 show_temperature_control: true
                 layout: vertical
-              - type: custom:mushroom-light-card
-                entity: light.innr_sp_220_switch
-                layout: vertical
-                name: Lamp
-                fill_container: true
-                collapsible_controls: false
-                use_light_color: false
-                show_brightness_control: false
-                show_color_control: false
-                show_color_temp_control: false
+              - type: vertical-stack
+                cards:
+                  - type: custom:mushroom-light-card
+                    entity: light.innr_sp_220_switch
+                    layout: horizontal
+                    fill_container: true
+                    collapsible_controls: false
+                    use_light_color: true
+                    show_brightness_control: false
+                    show_color_control: false
+                    show_color_temp_control: false
+                    name: Keuken
+                  - type: custom:mushroom-light-card
+                    entity: light.lamp_living_switch
+                    layout: horizontal
+                    fill_container: true
+                    collapsible_controls: false
+                    use_light_color: true
+                    show_brightness_control: false
+                    show_color_control: false
+                    show_color_temp_control: false
+                    name: Living
           - type: horizontal-stack
             cards:
               - type: custom:mini-graph-card
@@ -112,27 +167,187 @@ views:
           - type: custom:mushroom-entity-card
             entity: sensor.p1_meter_5c2faf058214_peak_demand_current_month
             name: Maand piek
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Beveiliging
+            title_tap_action:
+              action: navigate
+              navigation_path: /lovelace/protect
+          - type: conditional
+            conditions:
+              - entity: input_boolean.voortuindetectiemodus
+                state: on
+            card:
+              type: custom:timer-bar-card
+              name: Detectie modus voortuin aan
+              entity: timer.voortuindetectietimer
+              mushroom:
+                layout: horizontal
+                color: blue
+          - type: conditional
+            conditions:
+              - entity: input_boolean.vacation_mode
+                state: on
+            card:
+              type: custom:mushroom-template-card
+              primary: Vacation Mode is active
+              secondary: ""
+              icon: mdi:beach
+              entity: input_boolean.vacation_mode
+              badge_icon: mdi:alert
+              badge_color: red
+              fill_container: true
+              tap_action:
+                action: more-info
+              double_tap_action:
+                action: toggle
+          - type: custom:mushroom-alarm-control-panel-card
+            entity: alarm_control_panel.panel_ksenia_lares_48ip
+            states:
+              - armed_home
+              - armed_away
+            name: Alarm
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: entity
+                entity: input_boolean.vacation_mode
+                name: Vacation mode
+                content_info: name
+                use_entity_picture: false
+                tap_action:
+                  action: more-info
+              - type: entity
+                entity: input_boolean.voortuindetectiemodus
+                content_info: name
+                name: Camera detectie (2u)
+                tap_action:
+                  action: more-info
+              - type: action
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/camera
+                icon: mdi:cctv
+              - type: entity
+                entity: input_text.aankondigingbericht
+                content_info: none
+                name: Aankondiging
+            alignment: center
+          - type: custom:popup-card
+            entity: input_text.aankondigingbericht
+            dismissable: true
+            title: Aankondiging
+            size: normal
+            right_button: Versturen
+            card:
+              type: entities
+              entities:
+                - entity: input_text.aankondigingbericht
+                  name: Bericht
+            left_button_action: {}
+            right_button_action:
+              service: script.aankondiging_input
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Afval
+            title_tap_action:
+              action: navigate
+              navigation_path: /calendar
+          - type: custom:auto-entities
+            card_param: cards
+            card:
+              type: horizontal-stack
+            filter:
+              include:
+                - entity_id: sensor.limburg_net_*
+                  options:
+                    type: custom:mushroom-entity-card
+                    layout: vertical
+              exclude:
+                - attributes:
+                    Days_until: '>5'
+            show_empty: false
+            sort:
+              method: attribute
+              attribute: Days_until
+              reverse: true
   - title: Garden
     path: garden
     icon: mdi:forest-outline
     badges: []
     cards:
-      - type: custom:mushroom-title-card
-        title: Cameras
-      - type: horizontal-stack
+      - type: vertical-stack
         cards:
-          - camera_view: auto
-            type: picture-glance
-            entities:
-              - entity: binary_sensor.camera1_motion
-            title: Achter
-            camera_image: camera.camera1_sub
-          - camera_view: auto
-            type: picture-glance
-            title: Stal
-            entities:
-              - entity: binary_sensor.stal_motion
-            camera_image: camera.stal_sub
+          - type: custom:mushroom-title-card
+            title: Cameras
+          - type: horizontal-stack
+            cards:
+              - camera_view: auto
+                type: picture-glance
+                entities:
+                  - entity: binary_sensor.cam_tuin_person_occupancy
+                  - entity: binary_sensor.cam_tuin_horse_occupancy
+                title: Achter
+                camera_image: camera.cam_tuin
+              - camera_view: auto
+                type: picture-glance
+                title: Stal
+                entities:
+                  - entity: binary_sensor.cam_stal_person_occupancy
+                  - entity: binary_sensor.cam_stal_horse_occupancy
+                camera_image: camera.cam_stal
+          - type: custom:popup-card
+            entity: binary_sensor.cam_tuin_person_occupancy
+            dismissable: true
+            size: normal
+            title: Tuin - Persoon
+            card:
+              type: vertical-stack
+              cards:
+                - type: history-graph
+                  entities:
+                    - entity: binary_sensor.cam_tuin_person_occupancy
+                  hours_to_show: 2
+                - camera_view: auto
+                  type: picture-glance
+                  title: Persoon
+                  entities: []
+                  camera_image: camera.cam_tuin_person
+          - type: custom:popup-card
+            entity: binary_sensor.cam_tuin_horse_occupancy
+            dismissable: true
+            size: normal
+            title: Tuin - Paard
+            card:
+              type: vertical-stack
+              cards:
+                - type: history-graph
+                  entities:
+                    - entity: binary_sensor.cam_tuin_horse_occupancy
+                  hours_to_show: 2
+                - camera_view: auto
+                  type: picture-glance
+                  title: Paard
+                  entities: []
+                  camera_image: camera.cam_tuin_horse
+          - type: custom:popup-card
+            entity: binary_sensor.cam_stal_person_occupancy
+            dismissable: true
+            size: normal
+            title: Stal - Persoon
+            card:
+              type: vertical-stack
+              cards:
+                - type: history-graph
+                  entities:
+                    - entity: binary_sensor.cam_stal_person_occupancy
+                  hours_to_show: 2
+                - camera_view: auto
+                  type: picture-glance
+                  title: Persoon
+                  entities: []
+                  camera_image: camera.cam_stal_person
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
@@ -206,14 +421,14 @@ views:
                   - value: 30
                     color: '#ff5722'
                 entities:
-                  - entity: sensor.tze200_myd45weu_ts0601_temperature
+                  - entity: sensor.moestuin_sensor_temperature
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
             title: Moestuin
           - type: entities
             entities:
-              - entity: sensor.tze200_myd45weu_ts0601_soil_moisture
+              - entity: sensor.moestuin_sensor_soil_moisture
                 secondary_info: last-updated
                 name: Vochtigheid grond
               - entity: timer.watermoestuin
@@ -228,7 +443,6 @@ views:
                 - entity: script.bewateringtimerstart
                   name: Start
           - type: custom:popup-card
-            entity: sensor.tze200_myd45weu_ts0601_soil_moisture
             dismissable: true
             title: Moestuin vochtigheid
             size: wide
@@ -239,7 +453,7 @@ views:
                   chart_type: line
                   period: day
                   entities:
-                    - sensor.tze200_myd45weu_ts0601_soil_moisture
+                    - sensor.moestuin_sensor_soil_moisture
                   stat_types:
                     - mean
                     - min
@@ -248,12 +462,13 @@ views:
                 - type: custom:mushroom-chips-card
                   chips:
                     - type: entity
-                      entity: sensor.tze200_myd45weu_ts0601_soil_moisture
+                      entity: sensor.moestuin_sensor_soil_moisture
                       content_info: last-updated
                       icon: mdi:clock-check-outline
                     - type: entity
-                      entity: sensor.tze200_myd45weu_ts0601_battery
+                      entity: sensor.moestuin_sensor_battery
                   alignment: end
+            entity: sensor.moestuin_sensor_soil_moisture
           - type: custom:popup-card
             entity: timer.watermoestuin
             dismissable: true
@@ -396,18 +611,56 @@ views:
     path: protect
     badges: []
     cards:
-      - type: custom:frigate-card
-        cameras:
-          - camera_entity: camera.cam_voordeur
-          - camera_entity: camera.cam_tuin
-        view:
-          dark_mode: auto
-          update_cycle_camera: true
-          scan:
-            enabled: true
-        menu:
-          style: outside
-          position: bottom
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Alarm
+          - type: custom:mushroom-alarm-control-panel-card
+            entity: alarm_control_panel.panel_ksenia_lares_48ip
+            states:
+              - armed_home
+              - armed_away
+            name: Alarm
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Cameras
+          - type: custom:frigate-card
+            cameras:
+              - camera_entity: camera.cam_voordeur
+              - camera_entity: camera.cam_tuin
+            view:
+              dark_mode: auto
+              update_cycle_camera: true
+              scan:
+                enabled: true
+            menu:
+              style: outside
+              position: bottom
+          - type: horizontal-stack
+            cards:
+              - type: conditional
+                conditions:
+                  - entity: binary_sensor.cam_voordeur_car_occupancy
+                    state: on
+                card:
+                  camera_view: auto
+                  type: picture-glance
+                  title: Auto
+                  camera_image: camera.cam_voordeur_car
+                  entities:
+                    - entity: binary_sensor.cam_voordeur_car_occupancy
+              - type: conditional
+                conditions:
+                  - entity: binary_sensor.cam_voordeur_person_occupancy
+                    state: on
+                card:
+                  camera_view: auto
+                  type: picture-glance
+                  title: Persoon
+                  camera_image: camera.cam_voordeur_person
+                  entities:
+                    - entity: binary_sensor.cam_voordeur_person_occupancy
       - type: custom:auto-entities
         filter:
           include:
@@ -531,6 +784,13 @@ views:
     icon: mdi:server-network
     badges: []
     cards:
+      - type: custom:mushroom-entity-card
+        entity: input_boolean.vacation_mode
+        name: Vacation mode
+        tap_action:
+          action: more-info
+        hold_action:
+          action: toggle
       - type: entities
         entities:
           - entity: sensor.server_cpu_load_average_15_min
@@ -570,3 +830,27 @@ views:
               attributes:
                 device_class: battery
           exclude: []
+  - subview: true
+    title: Camera
+    path: camera
+    icon: mdi:cctv
+    type: panel
+    badges: []
+    cards:
+      - type: custom:frigate-card
+        cameras:
+          - camera_entity: camera.cam_voordeur
+          - camera_entity: camera.cam_tuin
+        view:
+          default: clips
+          dark_mode: auto
+        menu:
+          style: none
+        media_gallery:
+          controls:
+            thumbnails:
+              size: 150
+              show_details: false
+              show_favorite_control: false
+            filter:
+              mode: right

@@ -28,6 +28,10 @@
     target:
       entity_id: scene.sfeer_verlichting
     metadata: {}
+  - service: scene.turn_on
+    target:
+      entity_id: scene.lore_nacht
+    metadata: {}
   mode: single
 - id: '1677426135907'
   alias: Sunset
@@ -150,4 +154,188 @@
   action:
   - service: script.bewateringtimerstart
     data: {}
+  mode: single
+- id: '1689932629976'
+  alias: Vacation Mode On
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.vacation_mode
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.notify
+    data:
+      message: Vakantie modus geactiveerd. Verwarming gedactiveerd en lampen in vakantie
+        modus.
+      title: Vakantie modus
+  - service: scene.turn_on
+    target:
+      entity_id: scene.away_heating
+    metadata: {}
+  mode: single
+- id: '1689932743570'
+  alias: Vacation Mode Off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.vacation_mode
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.notify
+    data:
+      message: Vakantie modus gedactiveerd
+      title: Vakantie modus
+  - service: scene.turn_on
+    target:
+      entity_id: scene.home_heating
+    metadata: {}
+  mode: single
+- id: '1690118731278'
+  alias: Vacation - Dissarm notification
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.brand_altijd_actief
+    to: DISARMED
+  condition:
+  - condition: state
+    entity_id: input_boolean.vacation_mode
+    state: 'on'
+  action:
+  - service: notify.notify
+    data:
+      title: Alarm uitgeschakeld
+      message: Het alarm is uitgeschakeld tijdens vakantie modus
+  mode: single
+- id: '1690817702235'
+  alias: Voortuin Detectie - Timer start
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.voortuindetectiemodus
+    to: 'on'
+  condition: []
+  action:
+  - service: timer.start
+    data: {}
+    target:
+      entity_id: timer.voortuindetectietimer
+  mode: single
+- id: '1690817779007'
+  alias: Voortuin Detectie - Reset
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - timer.voortuindetectietimer
+    to: idle
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.voortuindetectiemodus
+  mode: single
+- id: '1690817934043'
+  alias: Voortuin detectie - Notificatie
+  description: ''
+  use_blueprint:
+    path: SgtBatten/Stable.yaml
+    input:
+      camera: camera.cam_voordeur
+      notify_device: e1124791e33b420b5fbe74d3f53e459e
+      state_entity: input_boolean.voortuindetectiemodus
+      state_filter_states:
+      - 'on'
+      state_filter: true
+      critical: 'false'
+      attachment: snapshot
+      ios_live_view: true
+      labels:
+      - person
+- id: '1691312023323'
+  alias: Voortuin - TTS Notification
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.cam_voordeur_person_occupancy
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.voortuindetectiemodus
+    state: 'on'
+  action:
+  - service: script.aankondiging
+    data:
+      message: Er is iemand aan de deur gedetecteerd
+  mode: single
+- id: '1691323175287'
+  alias: Agenda Aankondiging
+  description: ''
+  trigger:
+  - platform: calendar
+    event: start
+    offset: 0:0:0
+    entity_id: calendar.family_bell
+  condition:
+  - condition: state
+    entity_id: input_boolean.vacation_mode
+    state: 'off'
+  action:
+  - service: script.aankondiging
+    data:
+      message: '{{ trigger.calendar_event.summary }}'
+  mode: single
+- id: '1691509122619'
+  alias: Verbruik - Dag piek
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.p1_meter_5c2faf058214_active_power
+    for:
+      hours: 0
+      minutes: 20
+      seconds: 0
+    above: 3000
+  condition:
+  - condition: state
+    entity_id: sensor.p1_meter_5c2faf058214_active_tariff
+    state: '1'
+  action:
+  - service: notify.notify
+    data:
+      message: Piek verbruik gedecteerd op dag tarief, huidige verbruik {{ trigger.to_state
+        }}W (>{{ trigger.above }})
+      title: Piek verbruik
+  mode: single
+- id: '1692084563677'
+  alias: Night - Vacation
+  description: ''
+  trigger:
+  - platform: time
+    at: 01:05:00
+  condition:
+  - condition: state
+    entity_id: input_boolean.vacation_mode
+    state: 'on'
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.lore_dag
+    metadata: {}
   mode: single

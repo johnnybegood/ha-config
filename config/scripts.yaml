@@ -7,3 +7,89 @@ bewateringtimerstart:
       duration: '{{ states(''input_select.waterdoorlooptijd'') }}'
   mode: single
   icon: mdi:timer-play
+aankondiging:
+  alias: Aankondiging
+  fields:
+    message:
+      description: The message content
+      example: Test 123
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: https://www.orangefreesounds.com/wp-content/uploads/2019/12/Announcement-sound-effect.mp3
+      media_content_type: Music
+    target:
+      entity_id: media_player.living_room_speaker
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - service: tts.speak
+    data:
+      cache: true
+      media_player_entity_id: media_player.living_room_speaker
+      message: '{{ message }}'
+      language: nl_BE
+    target:
+      entity_id: tts.piper
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - media_player.living_room_speaker
+      from: playing
+      to: idle
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: media_player.play_media
+    data:
+      media_content_id: https://www.orangefreesounds.com/wp-content/uploads/2019/12/Announcement-sound-effect.mp3
+      media_content_type: Music
+    target:
+      entity_id: media_player.living_room_speaker
+  mode: single
+  icon: mdi:account-voice
+aankondiging_input:
+  alias: Aankondiging Input
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: https://www.orangefreesounds.com/wp-content/uploads/2019/12/Announcement-sound-effect.mp3
+      media_content_type: Music
+    target:
+      entity_id: media_player.living_room_speaker
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - service: tts.speak
+    data:
+      cache: true
+      media_player_entity_id: media_player.living_room_speaker
+      message: '{{ states(''input_text.aankondigingbericht'') }}'
+      language: nl_BE
+    target:
+      entity_id: tts.piper
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - media_player.living_room_speaker
+      from: playing
+      to: idle
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: media_player.play_media
+    data:
+      media_content_id: https://www.orangefreesounds.com/wp-content/uploads/2019/12/Announcement-sound-effect.mp3
+      media_content_type: Music
+    target:
+      entity_id: media_player.living_room_speaker
+  mode: single
+  icon: mdi:account-voice

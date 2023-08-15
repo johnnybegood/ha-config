@@ -25,6 +25,19 @@ sensor:
       - type: memory_use_percent
       - type: processor_use
       
+afvalbeheer:
+  wastecollector: Limburg.NET
+  resources:
+    - restafval
+    - gft
+    - papier
+    - pmd
+    - textiel
+  postcode: --REDACTED--
+  streetnumber: --REDACTED--
+  streetname: --REDACTED--
+  cityname: --REDACTED--
+      
 template:
   - sensor:
       - name: "Horse Feeder - Next feeding time"
