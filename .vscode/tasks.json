@@ -1,0 +1,21 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "read configuration",
+            "type": "shell",
+            "command": "./scripts/read.sh",
+            "args": ["${input:pickHost}"]
+        }
+    ],
+    "inputs": [
+        {
+          "id": "pickHost",
+          "type": "promptString",
+          "description": "Host or IP for the home assistance instance",
+
+        }
+      ]
+}
