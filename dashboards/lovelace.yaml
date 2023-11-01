@@ -167,6 +167,14 @@ views:
           - type: custom:mushroom-entity-card
             entity: sensor.p1_meter_5c2faf058214_peak_demand_current_month
             name: Maand piek
+          - type: custom:auto-entities
+            card:
+              type: entities
+              title: Laadpaal
+            filter:
+              include:
+                - entity_id: sensor.laadpaal_status_code_*
+            show_empty: false
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
@@ -629,6 +637,7 @@ views:
             cameras:
               - camera_entity: camera.cam_voordeur
               - camera_entity: camera.cam_tuin
+              - camera_entity: camera.cam_stal
             view:
               dark_mode: auto
               update_cycle_camera: true

@@ -21,7 +21,7 @@
   description: ''
   trigger:
   - platform: time
-    at: 05:00:00
+    at: 06:00:00
   condition: []
   action:
   - service: scene.turn_on
@@ -338,4 +338,22 @@
     target:
       entity_id: scene.lore_dag
     metadata: {}
+  mode: single
+- id: '1693202356958'
+  alias: Stop music on arm away
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - alarm_control_panel.panel_ksenia_lares_48ip
+    to: armed_away
+  condition: []
+  action:
+  - service: media_player.media_stop
+    data: {}
+    target:
+      device_id:
+      - 8e3e0b8c96e9a937b6fd8399e8e50814
+      - ef7228bd929bd9fe8b077b7e5c60a481
+      - 6f512c48e1a7cbbd0c9aa53ccf16477a
   mode: single
