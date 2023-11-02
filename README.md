@@ -1,4 +1,3 @@
-[![My HA Version](https://img.shields.io/github/v/tag/n00bcodr/homeassistant?color=d42a1e&label=My%20HA%20Version&logo=homeassistant&logoColor=white)](https://github.com/johnnybegood/ha-config/blob/main/config/.HA_VERSION)
 [![Commit Activity](https://img.shields.io/github/commit-activity/w/johnnybegood/ha-config?color=f58153)](https://github.com/johnnybegood/ha-config/pulse)
 [![Last Commit](https://img.shields.io/github/last-commit/johnnybegood/ha-config?color=purple)](https://github.com/johnnybegood/ha-config/commits/main)
 
