@@ -1,78 +1,3 @@
-- id: '1677425932357'
-  alias: Morning
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunrise
-    offset: 0
-  condition: []
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.sfeer_verlichting_uit
-    metadata: {}
-  - service: scene.turn_on
-    target:
-      entity_id: scene.lore_dag
-    metadata: {}
-  mode: single
-- id: '1677426092006'
-  alias: Morning - dark
-  description: ''
-  trigger:
-  - platform: time
-    at: 06:00:00
-  condition: []
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.sfeer_verlichting
-    metadata: {}
-  - service: scene.turn_on
-    target:
-      entity_id: scene.lore_nacht
-    metadata: {}
-  mode: single
-- id: '1677426135907'
-  alias: Sunset
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: 0
-  condition: []
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.sfeer_verlichting
-    metadata: {}
-  mode: single
-- id: '1677426175883'
-  alias: Sleep
-  description: ''
-  trigger:
-  - platform: time
-    at: '23:30:00'
-  condition: []
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.sfeer_verlichting_uit
-    metadata: {}
-  mode: single
-- id: '1677426217383'
-  alias: Sleep kids
-  description: ''
-  trigger:
-  - platform: time
-    at: '20:00:00'
-  condition: []
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.lore_nacht
-    metadata: {}
-  mode: single
 - id: '1681129255425'
   alias: Verwarming keuken/schuifraam
   description: ''
@@ -91,11 +16,18 @@
     input:
       motion_trigger:
       - binary_sensor.keuken
+      - binary_sensor.gangsensor_motion
       include_sun: sun_enabled
       include_time: time_enabled
-      before_time: 05:00:00
+      before_time: 05:30:00
       light_switch:
-        entity_id: light.innr_sp_220_switch
+        entity_id: light.livingbulb_light
+      after_time: '23:30:00'
+      light_transition_off: 10
+      include_light_control:
+      - use_transition
+      - use_brightness
+      light_brightness: 50
 - id: '1682431869099'
   alias: Low battery level alert
   description: ''
@@ -140,20 +72,6 @@
     device_id: 61eb1d7b85861127eec592fe53726d3c
     entity_id: switch.valve_tuin_switch
     domain: switch
-  mode: single
-- id: '1684064279466'
-  alias: Knop - Bewatering
-  description: ''
-  trigger:
-  - device_id: 5276f7a099d12bb3d2c609c285834eb1
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: turn_on
-  condition: []
-  action:
-  - service: script.bewateringtimerstart
-    data: {}
   mode: single
 - id: '1689932629976'
   alias: Vacation Mode On
@@ -356,4 +274,409 @@
       - 8e3e0b8c96e9a937b6fd8399e8e50814
       - ef7228bd929bd9fe8b077b7e5c60a481
       - 6f512c48e1a7cbbd0c9aa53ccf16477a
+      - 1c4f5afb77876bf687edfbd5f5bc7e33
+  mode: single
+- id: '1699356245417'
+  alias: Work From Home
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.workfromhomemode
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  - platform: time
+    at: 09:00:00
+  condition:
+  - condition: state
+    entity_id: input_boolean.vacation_mode
+    state: 'off'
+  - condition: state
+    entity_id: input_boolean.dayofftoggle
+    state: 'off'
+  action:
+  - alias: Set/Clear system mode
+    if:
+    - condition: state
+      entity_id: binary_sensor.workfromhomemode
+      state: 'on'
+    then:
+    - if:
+      - condition: time
+        weekday:
+        - mon
+        - tue
+        - fri
+        - thu
+      then:
+      - service: evohome.set_system_mode
+        data:
+          mode: Custom
+          period:
+            days: 1
+      alias: On weekday put Evohome in WFH modus
+    else:
+    - if:
+      - condition: state
+        entity_id: climate.thuis
+        attribute: preset_mode
+        state: Custom
+      then:
+      - service: evohome.set_system_mode
+        data:
+          mode: Auto
+      alias: Disable heating preset (when on)
+  - if:
+    - condition: state
+      entity_id: input_boolean.wouterwfhmodus
+      state: 'on'
+    then:
+    - service: evohome.set_zone_override
+      data:
+        entity_id: climate.polyvalente
+        setpoint: 21
+        duration:
+          minutes: 0
+      alias: Set WFH for Polyvalente
+    else:
+    - service: evohome.clear_zone_override
+      data:
+        entity_id: climate.polyvalente
+      alias: Clear WFH for Polyvalente
+    alias: Set/Clear WFH Polyvalente
+  - alias: Set/Clear WFH Speelkamer
+    if:
+    - condition: state
+      entity_id: input_boolean.barbarawfhmodus
+      state: 'on'
+    then:
+    - alias: Set WFH for Speelkamer
+      service: evohome.set_zone_override
+      data:
+        entity_id: climate.speelkamer
+        setpoint: 21
+        duration:
+          minutes: 0
+    else:
+    - alias: Clear WFH for Speelkamer
+      service: evohome.clear_zone_override
+      data:
+        entity_id: climate.speelkamer
+  mode: single
+- id: '1699378090624'
+  alias: WFH - Reset daily
+  description: ''
+  trigger:
+  - platform: time
+    at: '18:00:00'
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id:
+      - input_boolean.barbarawfhmodus
+      - input_boolean.wouterwfhmodus
+  mode: single
+- id: '1700998646329'
+  alias: Remote Badkamer
+  description: ''
+  use_blueprint:
+    path: niro1987/zha_ikea_tradfri_5button_remote_custom.yaml
+    input:
+      remote: 5276f7a099d12bb3d2c609c285834eb1
+      power_short:
+      - service: media_player.turn_off
+        data: {}
+        target:
+          device_id: 1c4f5afb77876bf687edfbd5f5bc7e33
+      dimup_short:
+      - service: media_player.volume_up
+        data: {}
+        target:
+          device_id: 1c4f5afb77876bf687edfbd5f5bc7e33
+      dimdown_short:
+      - service: media_player.volume_down
+        data: {}
+        target:
+          device_id: 1c4f5afb77876bf687edfbd5f5bc7e33
+      colorup_short:
+      - service: media_player.media_next_track
+        data: {}
+        target:
+          device_id: 1c4f5afb77876bf687edfbd5f5bc7e33
+      colordown_short:
+      - service: media_player.media_previous_track
+        data: {}
+        target:
+          device_id: 1c4f5afb77876bf687edfbd5f5bc7e33
+      colorup_long:
+      - service: script.playlist_person
+        data:
+          person: jasper
+      colordown_long:
+      - service: script.playlist_person
+        data:
+          person: lore
+- id: '1701598516599'
+  alias: 'Kerstverlichting '
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - schedule.verlichtingschedule
+    to:
+    id: Schedule
+  - platform: sun
+    event: sunrise
+    offset: 0:30:00
+    id: Sunrise
+  - platform: sun
+    event: sunset
+    offset: '-1:00:00'
+    id: Sunset
+  - platform: state
+    entity_id:
+    - alarm_control_panel.panel_ksenia_lares_48ip
+    to: armed_away
+    id: Armed
+  - platform: state
+    entity_id:
+    - alarm_control_panel.panel_ksenia_lares_48ip
+    to: disarming
+    id: Disarmed
+  condition:
+  - condition: state
+    entity_id: input_select.seasonal
+    state: Kerst
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - alias: Schedule
+          condition: state
+          entity_id: schedule.verlichtingschedule
+          state: 'on'
+        - condition: trigger
+          id:
+          - Sunset
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: binary_sensor.homedaysensor
+            state: 'on'
+          - condition: trigger
+            id:
+            - Sunrise
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id:
+          - light.sfeerverlichting
+          - light.kerstverlichting
+      alias: Verlichting aan
+    - conditions:
+      - condition: or
+        conditions:
+        - alias: Sunrise
+          condition: and
+          conditions:
+          - condition: trigger
+            id:
+            - Sunrise
+          - condition: state
+            entity_id: binary_sensor.homedaysensor
+            state: 'off'
+        - condition: and
+          conditions:
+          - condition: trigger
+            id:
+            - Armed
+          - condition: state
+            entity_id: schedule.verlichting
+            state: 'off'
+          alias: Alarm aan
+        - alias: 'Schema '
+          condition: and
+          conditions:
+          - condition: state
+            entity_id: schedule.verlichtingschedule
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.homedaysensor
+            state: 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id:
+          - light.kerstverlichting
+          - light.sfeerverlichting
+      alias: Verlichting uit
+  mode: single
+- id: '1701616686398'
+  alias: Kerstverlichting - buiten
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 0:30:00
+    id: Sunrise
+  - platform: sun
+    event: sunset
+    offset: '-1:00:00'
+    id: Sunset
+  - platform: time
+    at: 05:00:00
+    id: Morning
+  - platform: time
+    at: 00:00:00
+    id: Night
+  condition:
+  - condition: state
+    entity_id: input_select.seasonal
+    state: Kerst
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Sunset
+        - Morning
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.buiten
+      alias: Verlichting aan
+    - conditions:
+      - condition: trigger
+        id:
+        - Sunrise
+        - Night
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.buiten
+      alias: Verlichting uit
+  mode: single
+- id: '1702743668546'
+  alias: Stop music on TV
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.living_room
+    to: idle
+  condition:
+  - condition: state
+    entity_id: media_player.living_room_speaker
+    state: playing
+  action:
+  - service: media_player.turn_off
+    target:
+      device_id: []
+      area_id: []
+      entity_id: media_player.gelijkvloers
+    data: {}
+  mode: single
+- id: '1705241583332'
+  alias: Sfeerverlichting
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - schedule.verlichtingschedule
+    to:
+    id: Schedule
+  - platform: sun
+    event: sunrise
+    offset: 0:30:00
+    id: Sunrise
+  - platform: sun
+    event: sunset
+    offset: '-1:00:00'
+    id: Sunset
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.seasonal
+      state: Kerst
+    alias: Niet kerst
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - alias: Schedule
+          condition: state
+          entity_id: schedule.verlichtingschedule
+          state: 'on'
+        - condition: trigger
+          id:
+          - Sunset
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id:
+          - light.sfeerverlichting
+      alias: Verlichting aan
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: trigger
+          id:
+          - Sunrise
+        - condition: state
+          entity_id: schedule.verlichtingschedule
+          state: 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id:
+          - light.sfeerverlichting
+      alias: Verlichting uit
+  mode: single
+- id: '1705346469229'
+  alias: TV Dim
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.living_room
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+  condition:
+  - condition: state
+    entity_id: light.sfeerverlichting
+    state: 'on'
+  action:
+  - if:
+    - condition: state
+      entity_id: media_player.living_room
+      state: standby
+    then:
+    - service: light.turn_on
+      metadata: {}
+      data:
+        brightness_pct: 100
+      target:
+        entity_id: light.sfeerverlichting
+    else:
+    - service: light.turn_on
+      metadata: {}
+      data:
+        brightness_pct: 50
+      target:
+        entity_id: light.sfeerverlichting
   mode: single

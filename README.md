@@ -2,7 +2,7 @@
 [![Last Commit](https://img.shields.io/github/last-commit/johnnybegood/ha-config?color=purple)](https://github.com/johnnybegood/ha-config/commits/main)
 
 # Home Assistant Configuration
-My [Home Assistant](https://www.home-assistant.io/) configuration, running on Raspberry Pi 4 with a [RaspBee II](https://phoscon.de/en/raspbee2).
+My [Home Assistant](https://www.home-assistant.io/) configuration, running on Raspberry Pi 4 with a [RaspBee II](https://phoscon.de/en/raspbee2). [NSPanel Pro](https://itead.cc/product/sonoff-nspanel-pro-smart-home-control-panel/) with [Fully Kiosk](https://www.fully-kiosk.com/). Extended with [Logitech Media Server addon](https://github.com/pssc/ha-addon-lms/) for multi-room media control and [Frigate](https://frigate.video/) for smart security cameras.
 
 ## Export
 To export the current version of the config, run `./scripts/read.sh HOSTNAME` with the IP or hostname of the HA instance to export. Current content of the config folder will be deleted.

@@ -93,3 +93,126 @@ aankondiging_input:
       entity_id: media_player.living_room_speaker
   mode: single
   icon: mdi:account-voice
+christmas_sequence:
+  alias: Christmas Sequence
+  sequence:
+  - service: media_player.turn_on
+    target:
+      entity_id: media_player.living_room_speaker
+    data: {}
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.living_1
+      - light.living_2
+      - light.innr_sp_220_switch
+      - light.lamp_living_switch
+      - light.haard
+    data: {}
+  - parallel:
+    - service: media_player.play_media
+      target:
+        entity_id: media_player.living_room_speaker_2
+      data:
+        media_content_id: '6915'
+        media_content_type: playlist
+      metadata:
+        title: 'Spotify: Christmas Hits'
+        thumbnail:
+        media_class: playlist
+        children_media_class:
+        navigateIds:
+        - {}
+        - media_content_type: Playlists
+          media_content_id: Playlists
+    - choose:
+      - conditions: []
+        sequence:
+        - service: light.turn_on
+          data:
+            effect: '10'
+          target:
+            entity_id:
+            - light.living_1
+            - light.living_2
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 7
+            milliseconds: 0
+        - service: light.turn_on
+          target:
+            entity_id: light.sfeerverlichting
+          data: {}
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 50
+            milliseconds: 0
+        - service: light.turn_on
+          target:
+            entity_id:
+            - light.living_1
+            - light.living_2
+          data:
+            effect: '9'
+        - service: light.turn_on
+          data: {}
+          target:
+            entity_id: light.haard
+  mode: restart
+  icon: mdi:string-lights
+playlist_person:
+  alias: Playlist person
+  sequence:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ person == "lore" }}'
+      sequence:
+      - service: media_player.play_media
+        target:
+          entity_id: media_player.moode
+        data:
+          media_content_id: '6979'
+          media_content_type: playlist
+        metadata:
+          title: "Spotify: Peppa Pig Official Playlist \U0001F43D✨\U0001F3B5"
+          thumbnail:
+          media_class: playlist
+          children_media_class:
+          navigateIds:
+          - {}
+          - media_content_type: Playlists
+            media_content_id: Playlists
+    - conditions:
+      - condition: template
+        value_template: '{{ person == "jasper" }}'
+      sequence:
+      - service: media_player.play_media
+        target:
+          entity_id: media_player.moode
+        data:
+          media_content_id: '6997'
+          media_content_type: playlist
+        metadata:
+          title: 'Spotify: Jasper'
+          thumbnail:
+          media_class: playlist
+          children_media_class:
+          navigateIds:
+          - {}
+          - media_content_type: Playlists
+            media_content_id: Playlists
+  mode: single
+  icon: mdi:account-music
+  fields:
+    person:
+      selector:
+        select:
+          options:
+          - jasper
+          - lore
+      name: Person
+      description: Name of the person
+      required: true

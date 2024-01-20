@@ -26,11 +26,14 @@ cd $DIR
 scp $USER@$HOST:~/config/*.* ../config/
 scp $USER@$HOST:~/config/.HA_VERSION ../config/
 scp $USER@$HOST:~/config/.storage/lovelace ../dashboards/lovelace.json
+scp $USER@$HOST:~/config/.storage/lovelace.dashboard_kiosk ../dashboards/kiosk.json
 
 echo "-------------------------------------------------------"
 echo "[INFO] CONVERT LOVELACE TO YAML"
 echo "-------------------------------------------------------"
 cd ../dashboards
 yq -P '.data.config' -o yaml lovelace.json > lovelace.yaml
+yq -P '.data.config' -o yaml kiosk.json > kiosk.yaml
 echo "Delete JSON variant"
 rm lovelace.json
+rm kiosk.json

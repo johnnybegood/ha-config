@@ -17,13 +17,6 @@ scene: !include scenes.yaml
 evohome:
   username: !secret evohome_user
   password: !secret evohome_password
-  
-sensor:
-    - platform: systemmonitor
-      resources:
-      - type: disk_use_percent
-      - type: memory_use_percent
-      - type: processor_use
       
 afvalbeheer:
   wastecollector: Limburg.NET
