@@ -168,23 +168,6 @@
     target:
       entity_id: input_boolean.voortuindetectiemodus
   mode: single
-- id: '1690817934043'
-  alias: Voortuin detectie - Notificatie
-  description: ''
-  use_blueprint:
-    path: SgtBatten/Stable.yaml
-    input:
-      camera: camera.cam_voordeur
-      notify_device: e1124791e33b420b5fbe74d3f53e459e
-      state_entity: input_boolean.voortuindetectiemodus
-      state_filter_states:
-      - 'on'
-      state_filter: true
-      critical: 'false'
-      attachment: snapshot
-      ios_live_view: true
-      labels:
-      - person
 - id: '1691312023323'
   alias: Voortuin - TTS Notification
   description: ''
@@ -215,6 +198,11 @@
     entity_id: input_boolean.vacation_mode
     state: 'off'
   action:
+  - service: script.alert_panel
+    metadata: {}
+    data:
+      title: Kalender
+      message: '{{ trigger.calendar_event.summary }}'
   - service: script.aankondiging
     data:
       message: '{{ trigger.calendar_event.summary }}'
@@ -235,11 +223,12 @@
     entity_id: sensor.p1_meter_5c2faf058214_active_tariff
     state: '1'
   action:
-  - service: notify.notify
+  - service: script.notification
+    metadata: {}
     data:
+      title: Piek verbruik
       message: Piek verbruik gedecteerd op dag tarief, huidige verbruik {{ trigger.to_state
         }}W (>{{ trigger.above }})
-      title: Piek verbruik
   mode: single
 - id: '1692084563677'
   alias: Night - Vacation
@@ -679,4 +668,103 @@
         brightness_pct: 50
       target:
         entity_id: light.sfeerverlichting
+  mode: single
+- id: '1705776389629'
+  alias: NSPanel Screen
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - switch.rk3326_screen
+    to: 'on'
+    id: ScreenOn
+  - platform: state
+    entity_id:
+    - alarm_control_panel.panel_ksenia_lares_48ip
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - ScreenOn
+      - alias: Night or alarm on
+        condition: or
+        conditions:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: alarm_control_panel.panel_ksenia_lares_48ip
+            state: disarmed
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 5
+          seconds: 0
+          milliseconds: 0
+      - service: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.rk3326_screen
+    - conditions:
+      - condition: state
+        entity_id: alarm_control_panel.panel_ksenia_lares_48ip
+        state: disarmed
+      sequence:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.rk3326_screen
+        data: {}
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: alarm_control_panel.panel_ksenia_lares_48ip
+          state: disarmed
+      sequence:
+      - service: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.rk3326_screen
+  mode: single
+- id: '1710010814485'
+  alias: Spotlight camera on activity
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.cam_voordeur_all_occupancy
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: alarm_control_panel.panel_ksenia_lares_48ip
+    state: disarmed
+  action:
+  - service: script.spotlight_camera
+    metadata: {}
+    data: {}
+  mode: single
+- id: '1710077823634'
+  alias: CO2 alert
+  description: ''
+  trigger:
+  - type: carbon_dioxide
+    platform: device
+    device_id: 54c9c72b4bd7d285e83d42fdfaf01334
+    entity_id: b036cbfa1c2c7c7b7f3ecd5cb50d8a71
+    domain: sensor
+    above: 900
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+  condition: []
+  action:
+  - service: script.notification
+    metadata: {}
+    data:
+      title: CO2 Alert
+      message: CO2 boven 900ppm in living
   mode: single

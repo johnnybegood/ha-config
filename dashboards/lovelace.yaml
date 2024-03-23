@@ -645,7 +645,7 @@ views:
             primary: 'Next: {{ state_attr(''sensor.horse_feeder_next_feeding'', ''nextFeedingSlotName'')}}'
             icon: mdi:silo
             entity: sensor.horse_feeder_next_feeding
-            secondary: 'Previous {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingSlotName'')}} at {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingTime'') }} '
+            secondary: "Previous {{ state_attr('sensor.horse_feeder_last_feeding', 'previousFeedingSlotName')}} at {{ as_timestamp(state_attr('sensor.horse_feeder_last_feeding', 'previousFeedingTime') \n) | timestamp_custom('%c') }}"
             badge_icon: ""
             fill_container: false
             tap_action:
@@ -660,7 +660,7 @@ views:
             end_time:
               state: true
             entities:
-              - entity: sensor.horse_feeder_next_feeding_time
+              - entity: sensor.horse_feeder_next_feeding
                 name: Time to next
   - title: Weather
     path: weather
@@ -674,6 +674,13 @@ views:
         entity: camera.buienradar
         name: Buienradar
         camera_image: camera.buienradar
+      - type: custom:hourly-weather
+        entity: weather.forecast_home
+        icons: true
+        show_wind: barb-and-speed
+        show_date: boundary
+        show_precipitation_probability: true
+        show_precipitation_amounts: true
       - type: custom:auto-entities
         filter:
           include:
@@ -1067,3 +1074,40 @@ views:
               show_favorite_control: false
             filter:
               mode: right
+  - type: sections
+    title: Home2
+    path: home2
+    icon: mdi:home-automation
+    sections:
+      - type: grid
+        cards:
+          - type: custom:clock-weather-card
+            entity: weather.forecast_home
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: sensor.sensor_stal_ponies_temperature
+              - type: custom:mushroom-entity-card
+                entity: sensor.lumi_lumi_weather_temperature
+          - camera_view: auto
+            type: picture-glance
+            title: Voordeur
+            entities:
+              - entity: binary_sensor.voordeur
+              - entity: binary_sensor.deur_wasplaats
+            camera_image: camera.cam_voordeur
+        title: Buiten
+      - type: grid
+        cards:
+          - type: thermostat
+            entity: climate.living_keuken
+            show_current_as_primary: true
+        title: Gelijkvloers
+      - type: grid
+        cards:
+          - type: custom:mushroom-alarm-control-panel-card
+            entity: alarm_control_panel.panel_ksenia_lares_48ip
+            states:
+              - armed_home
+              - armed_away
+        title: Alarm

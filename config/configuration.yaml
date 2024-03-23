@@ -26,10 +26,10 @@ afvalbeheer:
     - papier
     - pmd
     - textiel
-  postcode: --REDACTED--
-  streetnumber: --REDACTED--
-  streetname: --REDACTED--
-  cityname: --REDACTED--
+  postcode: 3870
+  streetnumber: 3
+  streetname: Hoolstraat
+  cityname: heers
       
 template:
   - sensor:

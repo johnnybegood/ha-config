@@ -14,12 +14,19 @@ aankondiging:
       description: The message content
       example: Test 123
   sequence:
+  - service: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 0.5
+    target:
+      entity_id: media_player.living_room_speaker
   - service: media_player.play_media
     data:
       media_content_id: https://www.orangefreesounds.com/wp-content/uploads/2019/12/Announcement-sound-effect.mp3
       media_content_type: Music
     target:
-      entity_id: media_player.living_room_speaker
+      entity_id:
+      - media_player.living_room_speaker
   - delay:
       hours: 0
       minutes: 0
@@ -49,7 +56,8 @@ aankondiging:
       media_content_id: https://www.orangefreesounds.com/wp-content/uploads/2019/12/Announcement-sound-effect.mp3
       media_content_type: Music
     target:
-      entity_id: media_player.living_room_speaker
+      entity_id:
+      - media_player.living_room_speaker
   mode: single
   icon: mdi:account-voice
 aankondiging_input:
@@ -174,7 +182,7 @@ playlist_person:
         target:
           entity_id: media_player.moode
         data:
-          media_content_id: '6979'
+          media_content_id: '9328'
           media_content_type: playlist
         metadata:
           title: "Spotify: Peppa Pig Official Playlist \U0001F43D✨\U0001F3B5"
@@ -193,7 +201,7 @@ playlist_person:
         target:
           entity_id: media_player.moode
         data:
-          media_content_id: '6997'
+          media_content_id: '9346'
           media_content_type: playlist
         metadata:
           title: 'Spotify: Jasper'
@@ -215,4 +223,105 @@ playlist_person:
           - lore
       name: Person
       description: Name of the person
+      required: true
+alert_panel:
+  alias: Alert Panel
+  sequence:
+  - if:
+    - condition: template
+      value_template: '{{ message | length > 25 }}'
+    then:
+    - variables:
+        new_details: '{{ message }}'
+        new_message: '{{ title }}'
+  - service: browser_mod.popup
+    metadata: {}
+    data:
+      dismissable: true
+      autoclose: false
+      title: '{{ title }}'
+      size: normal
+      timeout: 30000
+      content: '<h1 style=''font-size: 5rem''><ha-icon icon=''mdi:alert-box'' style=''color:
+        red''></ha-icon> {{ new_message if new_message is not none else message }}</h1><h2>{{
+        details }}</h2>'
+    target:
+      device_id: f16f4a9fcb93f5aba7990eaea47f4f8c
+  mode: queued
+  icon: mdi:home-alert
+  fields:
+    title:
+      selector:
+        text:
+      required: true
+      name: Title
+    message:
+      selector:
+        text:
+          multiline: true
+      name: Message
+      required: true
+    details:
+      selector:
+        text:
+          multiline: true
+      name: Details
+spotlight_camera:
+  alias: Spotlight Camera
+  sequence:
+  - service: browser_mod.popup
+    metadata: {}
+    data:
+      dismissable: true
+      autoclose: true
+      timeout: 30000
+      content:
+        type: vertical-stack
+        cards:
+        - type: custom:mushroom-title-card
+          title: Voortuin
+        - type: picture-glance
+          entities: []
+          camera_image: camera.cam_voordeur
+          camera_view: live
+        - type: horizontal-stack
+          cards:
+          - type: custom:mushroom-entity-card
+            entity: sensor.cam_voordeur_car_count
+            name: cars
+          - type: custom:mushroom-entity-card
+            entity: sensor.cam_voordeur_person_count
+            name: persons
+      right_button: Close
+      right_button_action: {}
+    target:
+      device_id: f16f4a9fcb93f5aba7990eaea47f4f8c
+  mode: single
+  icon: mdi:cctv
+notification:
+  alias: Notification
+  sequence:
+  - service: script.alert_panel
+    metadata: {}
+    data:
+      title: '{{ title }}'
+      message: '{{ message }}'
+  - service: notify.notify
+    metadata: {}
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  mode: single
+  icon: mdi:bell
+  fields:
+    title:
+      selector:
+        text:
+      name: Title
+      required: true
+    message:
+      selector:
+        text:
+          multiline: true
+      name: Message
       required: true

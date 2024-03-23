@@ -1,17 +1,17 @@
 views:
   - title: Home
     icon: mdi:home
+    type: custom:vertical-layout
     badges: []
     cards:
       - type: custom:mushroom-chips-card
         chips:
-          - type: weather
-            entity: weather.buienradar
+          - type: entity
+            entity: sensor.p1_meter_5c2faf058214_active_power
             tap_action:
               action: navigate
-              navigation_path: /dashboard-kiosk/weather
-            show_temperature: true
-            show_conditions: true
+              navigation_path: /dashboard-kiosk/energy
+            use_entity_picture: false
           - type: entity
             entity: sensor.airthings_wave_125131_temperature
             tap_action:
@@ -29,98 +29,65 @@ views:
             entity: input_boolean.barbarawfhmodus
             content_info: name
             name: Barbara
+            icon_color: accent
           - type: entity
             entity: input_boolean.wouterwfhmodus
             name: Wouter
             content_info: name
             use_entity_picture: false
+            icon_color: accent
         alignment: justify
-      - type: vertical-stack
+      - type: custom:auto-entities
+        card_param: cards
+        card:
+          type: horizontal-stack
+          title: Afval
+        filter:
+          include:
+            - entity_id: sensor.limburg_net_*
+              options:
+                type: custom:mushroom-entity-card
+                layout: vertical
+          exclude:
+            - attributes:
+                Days_until: '>1'
+        show_empty: false
+        sort:
+          method: attribute
+          attribute: Days_until
+          reverse: true
+      - type: custom:clock-weather-card
+        entity: weather.forecast_home
+        hide_forecast_section: true
+        use_browser_time: false
+        time_format: 24
+      - type: custom:vertical-stack-in-card
+        title: Living-Keuken
         cards:
-          - type: custom:mushroom-title-card
-            title: Gelijkvloers
-          - type: conditional
-            conditions:
-              - condition: state
-                entity: input_select.seasonal
-                state: Kerst
-            card:
-              type: custom:mushroom-light-card
-              entity: light.kerstverlichting
-              show_brightness_control: true
-              collapsible_controls: true
-              tap_action:
-                action: more-info
-              double_tap_action:
-                action: toggle
+          - type: custom:mushroom-climate-card
+            entity: climate.living_keuken
+            layout: horizontal
+            show_temperature_control: true
           - type: horizontal-stack
             cards:
-              - type: custom:mushroom-climate-card
-                entity: climate.living_keuken
-                name: Keuken/Living
-                hvac_modes: []
-                collapsible_controls: false
-                show_temperature_control: true
-                layout: vertical
-              - type: vertical-stack
-                cards:
-                  - type: custom:mushroom-light-card
-                    entity: light.livingbulb_light
-                    fill_container: true
-                    collapsible_controls: true
-                    use_light_color: true
-                    show_brightness_control: true
-                    show_color_control: false
-                    show_color_temp_control: false
-                    name: Keuken
-                  - type: custom:mushroom-light-card
-                    entity: light.livingbulbrgb_light
-                    fill_container: true
-                    collapsible_controls: true
-                    use_light_color: true
-                    show_brightness_control: true
-                    show_color_control: false
-                    show_color_temp_control: false
-                    name: Living
-          - type: custom:auto-entities
-            filter:
-              include:
-                - device_manufacturer: KSENIA
-                  state: on
-                  options:
-                    type: custom:mushroom-entity-card
-              exclude:
-                - entity_id: binary_sensor.ksenia_lares_lares_zones_*
-                - entity_id: binary_sensor.sabotage_*
-            card_param: cards
-            card:
-              type: vertical-stack
-            show_empty: false
-      - type: vertical-stack
-        cards:
-          - type: custom:mushroom-title-card
-            title: Afval
-            title_tap_action:
-              action: navigate
-              navigation_path: /calendar
-          - type: custom:auto-entities
-            card_param: cards
-            card:
-              type: horizontal-stack
-            filter:
-              include:
-                - entity_id: sensor.limburg_net_*
-                  options:
-                    type: custom:mushroom-entity-card
-                    layout: vertical
-              exclude:
-                - attributes:
-                    Days_until: '>5'
-            show_empty: false
-            sort:
-              method: attribute
-              attribute: Days_until
-              reverse: true
+              - type: custom:mushroom-light-card
+                entity: light.livingbulb_light
+                use_light_color: true
+                show_brightness_control: true
+                layout: horizontal
+                collapsible_controls: true
+                double_tap_action:
+                  action: more-info
+                name: Keuken
+              - type: custom:mushroom-light-card
+                entity: light.livingbulbrgb_light
+                name: Living
+                use_light_color: true
+                show_brightness_control: true
+                layout: horizontal
+                collapsible_controls: true
+                double_tap_action:
+                  action: more-info
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
@@ -511,7 +478,7 @@ views:
             primary: 'Next: {{ state_attr(''sensor.horse_feeder_next_feeding'', ''nextFeedingSlotName'')}}'
             icon: mdi:silo
             entity: sensor.horse_feeder_next_feeding
-            secondary: 'Previous {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingSlotName'')}} at {{ state_attr(''sensor.horse_feeder_last_feeding'', ''previousFeedingTime'') }} '
+            secondary: "Previous {{ state_attr('sensor.horse_feeder_last_feeding', 'previousFeedingSlotName')}} at {{ as_timestamp(state_attr('sensor.horse_feeder_last_feeding', 'previousFeedingTime') \n) | timestamp_custom('%c') }}"
             badge_icon: ""
             fill_container: false
             tap_action:
@@ -526,7 +493,7 @@ views:
             end_time:
               state: true
             entities:
-              - entity: sensor.horse_feeder_next_feeding_time
+              - entity: sensor.horse_feeder_next_feeding
                 name: Time to next
   - title: Weather
     path: weather
@@ -535,7 +502,11 @@ views:
     cards:
       - type: custom:simple-weather-card
         entity: weather.buienradar
-        backdrop: true
+        backdrop:
+          fade: true
+        secondary_info:
+          - precipitation
+          - precipitation_probability
       - show_name: true
         show_state: false
         camera_view: auto
@@ -543,6 +514,13 @@ views:
         entity: camera.buienradar
         name: Buienradar
         camera_image: camera.buienradar
+      - type: custom:hourly-weather
+        entity: weather.forecast_home
+        icons: true
+        show_wind: speed
+        show_precipitation_amounts: true
+        show_precipitation_probability: true
+        show_date: boundary
       - type: custom:auto-entities
         filter:
           include:
@@ -698,16 +676,10 @@ views:
         cards:
           - type: custom:mushroom-title-card
             title: Power
-            title_tap_action:
-              action: navigate
-              navigation_path: /energy
           - type: custom:mini-graph-card
             name: Consumptie
             hour24: true
             points_per_hour: 1
-            tap_action:
-              action: navigate
-              navigation_path: /energy
             color_thresholds:
               - value: 0
                 color: '#A4C3D2'
@@ -731,3 +703,41 @@ views:
               include:
                 - entity_id: sensor.laadpaal_status_code_*
             show_empty: false
+          - type: custom:power-flow-card-plus
+            entities:
+              battery:
+                entity: ""
+              grid:
+                entity: sensor.p1_meter_5c2faf058214_active_power
+              home:
+                entity: sensor.p1_meter_5c2faf058214_active_power
+                secondary_info:
+                  template: ""
+                use_metadata: false
+              individual1:
+                entity: sensor.laadpaal_active_power_total_socket_1
+                name: Laadpaal 2
+                icon: mdi:car
+              individual2:
+                entity: sensor.laadpaal_active_power_total_socket_2
+                icon: mdi:car-back
+                name: Laadpaal 2
+                color_icon: false
+              fossil_fuel_percentage: {}
+            clickable_entities: true
+            display_zero_lines:
+              mode: grey_out
+              transparency: 50
+              grey_color:
+                - 189
+                - 189
+                - 189
+            use_new_flow_rate_model: true
+            w_decimals: 0
+            kw_decimals: 1
+            min_flow_rate: 0.75
+            max_flow_rate: 6
+            max_expected_power: 2000
+            min_expected_power: 0.01
+            watt_threshold: 1000
+            transparency_zero_lines: 0
