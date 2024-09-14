@@ -16,12 +16,13 @@
     input:
       motion_trigger:
       - binary_sensor.keuken
-      - binary_sensor.gangsensor_motion
+      - binary_sensor.gangmotion_motion
+      - binary_sensor.nspanelliving
       include_sun: sun_enabled
       include_time: time_enabled
       before_time: 05:30:00
       light_switch:
-        entity_id: light.livingbulb_light
+        entity_id: light.lampkeuken_light
       after_time: '23:30:00'
       light_transition_off: 10
       include_light_control:
@@ -49,10 +50,11 @@
     to: active
   condition: []
   action:
-  - type: turn_on
-    device_id: 61eb1d7b85861127eec592fe53726d3c
-    entity_id: switch.valve_tuin_switch
-    domain: switch
+  - service: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.tuinwater_switch
   mode: single
 - id: '1682799647623'
   alias: Water tuin stop
@@ -68,10 +70,11 @@
     to: paused
   condition: []
   action:
-  - type: turn_off
-    device_id: 61eb1d7b85861127eec592fe53726d3c
-    entity_id: switch.valve_tuin_switch
-    domain: switch
+  - service: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.tuinwater_switch
   mode: single
 - id: '1689932629976'
   alias: Vacation Mode On
@@ -87,15 +90,20 @@
       seconds: 0
   condition: []
   action:
-  - service: notify.notify
-    data:
-      message: Vakantie modus geactiveerd. Verwarming gedactiveerd en lampen in vakantie
-        modus.
+  - data:
+      message: Vakantie modus geactiveerd. Verwarming gedactiveerd en extra monitoring
+        is actief.
       title: Vakantie modus
-  - service: scene.turn_on
-    target:
+    action: notify.notify
+  - target:
       entity_id: scene.away_heating
     metadata: {}
+    action: scene.turn_on
+  - device_id: 0046f4d0e817697b6d0207be7d609966
+    domain: select
+    entity_id: a36d8e421464b2c5fc748749b6baa25b
+    type: select_option
+    option: In-operative
   mode: single
 - id: '1689932743570'
   alias: Vacation Mode Off
@@ -111,14 +119,19 @@
       seconds: 0
   condition: []
   action:
-  - service: notify.notify
-    data:
+  - data:
       message: Vakantie modus gedactiveerd
       title: Vakantie modus
-  - service: scene.turn_on
-    target:
+    action: notify.notify
+  - target:
       entity_id: scene.home_heating
     metadata: {}
+    action: scene.turn_on
+  - device_id: 0046f4d0e817697b6d0207be7d609966
+    domain: select
+    entity_id: a36d8e421464b2c5fc748749b6baa25b
+    type: select_option
+    option: Operative
   mode: single
 - id: '1690118731278'
   alias: Vacation - Dissarm notification
@@ -229,22 +242,6 @@
       title: Piek verbruik
       message: Piek verbruik gedecteerd op dag tarief, huidige verbruik {{ trigger.to_state
         }}W (>{{ trigger.above }})
-  mode: single
-- id: '1692084563677'
-  alias: Night - Vacation
-  description: ''
-  trigger:
-  - platform: time
-    at: 01:05:00
-  condition:
-  - condition: state
-    entity_id: input_boolean.vacation_mode
-    state: 'on'
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.lore_dag
-    metadata: {}
   mode: single
 - id: '1693202356958'
   alias: Stop music on arm away
@@ -653,19 +650,19 @@
   - if:
     - condition: state
       entity_id: media_player.living_room
-      state: standby
+      state: playing
     then:
     - service: light.turn_on
       metadata: {}
       data:
-        brightness_pct: 100
+        brightness_pct: 50
       target:
         entity_id: light.sfeerverlichting
     else:
     - service: light.turn_on
       metadata: {}
       data:
-        brightness_pct: 50
+        brightness_pct: 100
       target:
         entity_id: light.sfeerverlichting
   mode: single
@@ -675,19 +672,23 @@
   trigger:
   - platform: state
     entity_id:
-    - switch.rk3326_screen
-    to: 'on'
-    id: ScreenOn
+    - alarm_control_panel.panel_ksenia_lares_48ip
+  - platform: homeassistant
+    event: start
+    id: Start
   - platform: state
     entity_id:
-    - alarm_control_panel.panel_ksenia_lares_48ip
+    - event.nspanelpro10bbf36911fd_proximity
+    from: triggered
+    attribute: event_type
+    id: Proximity
   condition: []
   action:
   - choose:
     - conditions:
       - condition: trigger
         id:
-        - ScreenOn
+        - Proximity
       - alias: Night or alarm on
         condition: or
         conditions:
@@ -697,25 +698,30 @@
             entity_id: alarm_control_panel.panel_ksenia_lares_48ip
             state: disarmed
       sequence:
+      - action: switch.turn_on
+        target:
+          entity_id:
+          - switch.rk3326_screen
+        data: {}
       - delay:
           hours: 0
           minutes: 5
           seconds: 0
           milliseconds: 0
-      - service: switch.turn_off
-        metadata: {}
+      - metadata: {}
         data: {}
         target:
           entity_id: switch.rk3326_screen
+        action: switch.turn_off
     - conditions:
       - condition: state
         entity_id: alarm_control_panel.panel_ksenia_lares_48ip
         state: disarmed
       sequence:
-      - service: switch.turn_on
-        target:
+      - target:
           entity_id: switch.rk3326_screen
         data: {}
+        action: switch.turn_on
     - conditions:
       - condition: not
         conditions:
@@ -723,11 +729,21 @@
           entity_id: alarm_control_panel.panel_ksenia_lares_48ip
           state: disarmed
       sequence:
-      - service: switch.turn_off
-        metadata: {}
+      - metadata: {}
         data: {}
         target:
           entity_id: switch.rk3326_screen
+        action: switch.turn_off
+    - conditions:
+      - condition: trigger
+        id:
+        - Start
+      sequence:
+      - action: button.press
+        metadata: {}
+        data: {}
+        target:
+          entity_id: button.rk3326_load_start_url
   mode: single
 - id: '1710010814485'
   alias: Spotlight camera on activity
@@ -767,4 +783,223 @@
     data:
       title: CO2 Alert
       message: CO2 boven 900ppm in living
+  mode: single
+- id: '1718695038905'
+  alias: Laadpaal error
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.laadpaal_display_error_number_socket_1
+    from: '0: No Error'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+    id: LaadPaal1
+  - platform: state
+    entity_id:
+    - sensor.laadpaal_display_error_number_socket_2
+    from: '0: No Error'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+    id: LaadPaal2
+  condition: []
+  action:
+  - service: notify.mobile_app_wouter_phone
+    data:
+      message: 'Error met {{trigger.id}}: {{ trigger.to_state }}
+
+        '
+      title: Laadpaal
+  mode: single
+- id: '1722968114315'
+  alias: Pony Stroom
+  description: Toggle power for pony wire. Checks PonyThuisToggle, when off the result
+    is always power off. Otherwise if triggers by button it will toggle the power
+    state. If not triggered by button it will turn on the power
+  trigger:
+  - device_id: 78ceb3119a3911eb0db053126e9e353c
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: button_1
+    id: Button
+  - platform: state
+    entity_id:
+    - input_boolean.ponythuistoggle
+    id: PonyThuis
+  - platform: time
+    at: 01:00:00
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.ponythuistoggle
+        state: 'off'
+      sequence:
+      - type: turn_off
+        device_id: 600b2e2eb530ca948f279999d425e116
+        entity_id: 62dbadee534ab83693065a698fafd8c4
+        domain: switch
+    - conditions:
+      - condition: trigger
+        id:
+        - Button
+      sequence:
+      - metadata: {}
+        data: {}
+        target:
+          device_id: 600b2e2eb530ca948f279999d425e116
+        action: switch.toggle
+        alias: Toggle schrikdraad
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.ponythuistoggle
+        state: 'on'
+      sequence:
+      - type: turn_on
+        device_id: 600b2e2eb530ca948f279999d425e116
+        entity_id: 62dbadee534ab83693065a698fafd8c4
+        domain: switch
+  mode: single
+- id: '1723389469449'
+  alias: Pony voortuin
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.cam_voordeur_horse_occupancy
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.ponythuistoggle
+    state: 'off'
+  action:
+  - variables:
+      action_on: '{{ ''ON_'' ~ context.id }}'
+      action_off: '{{ ''OFF_'' ~ context.id }}'
+  - alias: Send actionable notification
+    action: notify.notify
+    data:
+      message: Pony gedetecteerd in de voortuin of wei. Zijn de pony’s thuis of op
+        een andere wei?
+      data:
+        actions:
+        - action: '{{ action_on }}'
+          title: Andere wei
+        - action: '{{ action_off }}'
+          title: Thuis
+  - wait_for_trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: '{{ action_on }}'
+    continue_on_timeout: true
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+    alias: Wait for action on notification
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '"{{ wait.trigger.event.data.action == action_on }}" '
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id:
+          - input_boolean.ponythuistoggle
+        data: {}
+      alias: 'On'
+    - conditions:
+      - condition: template
+        value_template: '"{{ wait.trigger.event.data.action == action_off }}" '
+      sequence:
+      - action: input_boolean.turn_off
+        target:
+          entity_id:
+          - input_boolean.ponythuistoggle
+        data: {}
+      alias: 'Off'
+  mode: single
+- id: '1724515600348'
+  alias: Pony stroom timer
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - timer.ponytempofftimer
+    id: Timer end
+    to: idle
+    from: active
+  - device_id: 78ceb3119a3911eb0db053126e9e353c
+    domain: zha
+    platform: device
+    type: remote_button_long_press
+    subtype: button_1
+  - platform: state
+    entity_id:
+    - switch.shellyplus1_e465b8f31294_switch_0
+    from: 'off'
+    to: 'on'
+    id: Reactivated
+  condition:
+  - condition: state
+    entity_id: input_boolean.ponythuistoggle
+    state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: trigger
+          id:
+          - Timer end
+        alias: Not triggered by timer end
+      - condition: state
+        entity_id: timer.ponytempofftimer
+        state: idle
+      sequence:
+      - action: timer.start
+        metadata: {}
+        data:
+          duration: '{{ states(''input_select.ponytempoffoptions'') }}'
+        target:
+          entity_id: timer.ponytempofftimer
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.shellyplus1_e465b8f31294_switch_0
+      alias: Timer not running
+    - conditions:
+      - condition: trigger
+        id:
+        - Timer end
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.shellyplus1_e465b8f31294_switch_0
+      alias: Timer ended
+    - conditions:
+      - condition: trigger
+        id:
+        - Reactivated
+      - condition: state
+        entity_id: timer.ponytempofftimer
+        state: active
+      sequence:
+      - action: timer.cancel
+        metadata: {}
+        data: {}
+        target:
+          entity_id: timer.ponytempofftimer
+      alias: Power reactivated during running timer
   mode: single

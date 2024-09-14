@@ -227,13 +227,6 @@ playlist_person:
 alert_panel:
   alias: Alert Panel
   sequence:
-  - if:
-    - condition: template
-      value_template: '{{ message | length > 25 }}'
-    then:
-    - variables:
-        new_details: '{{ message }}'
-        new_message: '{{ title }}'
   - service: browser_mod.popup
     metadata: {}
     data:
@@ -242,9 +235,9 @@ alert_panel:
       title: '{{ title }}'
       size: normal
       timeout: 30000
-      content: '<h1 style=''font-size: 5rem''><ha-icon icon=''mdi:alert-box'' style=''color:
-        red''></ha-icon> {{ new_message if new_message is not none else message }}</h1><h2>{{
-        details }}</h2>'
+      content: '<h1 style=''font-size: 5rem''> {% if message | length > 10 %} {{ title
+        }}</h1><h2>{{ message }}</h2> {% else %} {{ message }}</h1><h2>{{ details
+        }}</h2> {% endif %}'
     target:
       device_id: f16f4a9fcb93f5aba7990eaea47f4f8c
   mode: queued
@@ -324,4 +317,45 @@ notification:
         text:
           multiline: true
       name: Message
+      required: true
+bewateringwaterstop:
+  alias: BewateringWaterStop
+  sequence:
+  - service: timer.finish
+    metadata: {}
+    data: {}
+    target:
+      entity_id: timer.watermoestuin
+  mode: single
+  icon: mdi:timer-stop
+vacuum_zone:
+  alias: Vacuum Zone
+  sequence:
+  - service: vacuum.send_command
+    metadata: {}
+    data:
+      command: start
+      params:
+        pmap_id: lokI_9GGSdaeVSiIAonnLQ
+        regions:
+        - region_id: '{{ zone_region.split("-")[1] }}'
+          type: '{{ zone_region.split("-")[0] }}id'
+    target:
+      entity_id: vacuum.robin
+  mode: single
+  icon: mdi:robot-vacuum
+  fields:
+    zone_region:
+      selector:
+        select:
+          options:
+          - label: Keuken - Tafel
+            value: z-1
+          - label: Keuken
+            value: r-1
+          - label: Living
+            value: r-2
+          - label: Gang
+            value: r-0
+      name: Zone/Region
       required: true

@@ -12,10 +12,10 @@ views:
           - type: horizontal-stack
             cards:
               - type: custom:mushroom-entity-card
-                entity: sensor.sensor_stal_ponies_temperature
+                entity: sensor.stalweather_temperature
                 name: Stal Ponies
               - type: custom:mushroom-entity-card
-                entity: sensor.lumi_lumi_weather_temperature
+                entity: sensor.konijnensensor_temperature
                 name: Stal Konijnen
           - camera_view: auto
             type: picture-glance
@@ -34,20 +34,20 @@ views:
             card:
               type: vertical-stack
               cards:
-                - type: history-graph
-                  entities:
-                    - entity: binary_sensor.cam_voordeur_car_occupancy
-                  hours_to_show: 2
                 - camera_view: auto
                   type: picture-glance
                   title: Persoon
                   entities: []
-                  camera_image: camera.cam_voordeur_car
                   tap_action:
                     action: navigate
                     navigation_path: /lovelace/camera
                   hold_action:
                     action: none
+                  image_entity: image.cam_voordeur_car
+                - type: history-graph
+                  entities:
+                    - entity: binary_sensor.cam_voordeur_car_occupancy
+                  hours_to_show: 2
             right_button_action: {}
           - type: custom:popup-card
             entity: binary_sensor.cam_voordeur_person_occupancy
@@ -56,19 +56,19 @@ views:
             card:
               type: vertical-stack
               cards:
-                - type: history-graph
-                  entities:
-                    - entity: binary_sensor.cam_voordeur_person_occupancy
-                  hours_to_show: 2
                 - camera_view: auto
                   type: picture-glance
                   title: Persoon
                   entities: []
-                  camera_image: camera.cam_voordeur_person
                   tap_action:
                     action: none
                   hold_action:
                     action: none
+                  image_entity: image.cam_voordeur_person
+                - type: history-graph
+                  entities:
+                    - entity: binary_sensor.cam_voordeur_person_occupancy
+                  hours_to_show: 2
             title: Persoon voordeur
       - type: vertical-stack
         cards:
@@ -100,7 +100,7 @@ views:
               - type: vertical-stack
                 cards:
                   - type: custom:mushroom-light-card
-                    entity: light.livingbulb_light
+                    entity: light.lampkeuken_light
                     fill_container: true
                     collapsible_controls: true
                     use_light_color: true
@@ -111,7 +111,7 @@ views:
                     tap_action:
                       action: more-info
                   - type: custom:mushroom-light-card
-                    entity: light.livingbulbrgb_light
+                    entity: light.lampliving_light
                     fill_container: true
                     collapsible_controls: true
                     use_light_color: true
@@ -516,7 +516,7 @@ views:
                       - value: 30
                         color: '#ff5722'
                     entities:
-                      - entity: sensor.lumi_lumi_weather_temperature
+                      - entity: sensor.konijnensensor_temperature
                   - type: custom:mini-graph-card
                     name: Stal ponies
                     hour24: true
@@ -532,7 +532,7 @@ views:
                       - value: 30
                         color: '#ff5722'
                     entities:
-                      - entity: sensor.sensor_stal_ponies_temperature
+                      - entity: sensor.stalweather_temperature
           - type: horizontal-stack
             cards:
               - type: custom:mini-graph-card
@@ -550,9 +550,9 @@ views:
                   - value: 30
                     color: '#ff5722'
                 entities:
-                  - entity: sensor.lumi_lumi_weather_temperature_2
+                  - entity: sensor.konijnbuitenweather_temperature
               - type: custom:mini-graph-card
-                name: Moestuin buiten
+                name: Grond temp
                 hour24: true
                 color_thresholds:
                   - value: 0
@@ -566,76 +566,7 @@ views:
                   - value: 30
                     color: '#ff5722'
                 entities:
-                  - entity: sensor.moestuin_sensor_temperature
-      - type: vertical-stack
-        cards:
-          - type: custom:mushroom-title-card
-            title: Moestuin
-          - type: entities
-            entities:
-              - entity: sensor.moestuin_sensor_soil_moisture
-                secondary_info: last-updated
-                name: Vochtigheid grond
-              - entity: timer.watermoestuin
-                type: custom:timer-bar-card
-                name: Bewatering
-              - entity: input_select.waterdoorlooptijd
-                name: 'Looptijd bewatering '
-            state_color: true
-            footer:
-              type: buttons
-              entities:
-                - entity: script.bewateringtimerstart
-                  name: Start
-          - type: custom:popup-card
-            dismissable: true
-            title: Moestuin vochtigheid
-            size: wide
-            card:
-              type: vertical-stack
-              cards:
-                - type: statistics-graph
-                  chart_type: line
-                  period: day
-                  entities:
-                    - sensor.moestuin_sensor_soil_moisture
-                  stat_types:
-                    - mean
-                    - min
-                    - max
-                  days_to_show: 7
-                - type: custom:mushroom-chips-card
-                  chips:
-                    - type: entity
-                      entity: sensor.moestuin_sensor_soil_moisture
-                      content_info: last-updated
-                      icon: mdi:clock-check-outline
-                    - type: entity
-                      entity: sensor.moestuin_sensor_battery
-                  alignment: end
-            entity: sensor.moestuin_sensor_soil_moisture
-          - type: custom:popup-card
-            entity: timer.watermoestuin
-            dismissable: true
-            title: Bewatering geschiedenis
-            size: wide
-            card:
-              type: custom:logbook-card
-              entity: switch.valve_tuin_switch
-              collapse: 2
-              title: Bewatering
-              state_map:
-                - label: Druppelen
-                  value: on
-              hidden_state:
-                - off
-              show:
-                state: true
-                duration: true
-                start_date: true
-                end_date: false
-                icon: true
-                separator: false
+                  - entity: sensor.buienradar_ground_temperature
       - type: vertical-stack
         cards:
           - type: custom:mushroom-title-card
@@ -662,6 +593,40 @@ views:
             entities:
               - entity: sensor.horse_feeder_next_feeding
                 name: Time to next
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Pony's
+          - type: custom:bubble-card
+            card_type: button
+            name: Thuis
+            entity: input_boolean.ponythuistoggle
+          - type: custom:bubble-card
+            card_type: button
+            entity: switch.shellyplus1_e465b8f31294_switch_0
+            name: Schrikdraad
+            sub_button: []
+          - type: custom:bubble-card
+            card_type: button
+            entity: timer.ponytempofftimer
+            name: Schrikdraad timer
+            sub_button:
+              - entity: input_select.ponytempoffoptions
+                show_state: true
+                show_icon: true
+            button_type: state
+            show_name: true
+            force_icon: false
+            button_action:
+              tap_action:
+                action: call-service
+                service: automation.trigger
+                target:
+                  entity_id: automation.stroom_pony_timer
+            show_last_changed: false
+            show_state: false
+            show_attribute: true
+            attribute: finishes_at
   - title: Weather
     path: weather
     icon: mdi:weather-rainy
@@ -773,47 +738,6 @@ views:
               - armed_home
               - armed_away
             name: Alarm
-      - type: vertical-stack
-        cards:
-          - type: custom:mushroom-title-card
-            title: Cameras
-          - type: custom:frigate-card
-            cameras:
-              - camera_entity: camera.cam_voordeur
-              - camera_entity: camera.cam_tuin
-              - camera_entity: camera.cam_stal
-            view:
-              dark_mode: auto
-              update_cycle_camera: true
-              scan:
-                enabled: true
-            menu:
-              style: outside
-              position: bottom
-          - type: horizontal-stack
-            cards:
-              - type: conditional
-                conditions:
-                  - entity: binary_sensor.cam_voordeur_car_occupancy
-                    state: on
-                card:
-                  camera_view: auto
-                  type: picture-glance
-                  title: Auto
-                  camera_image: camera.cam_voordeur_car
-                  entities:
-                    - entity: binary_sensor.cam_voordeur_car_occupancy
-              - type: conditional
-                conditions:
-                  - entity: binary_sensor.cam_voordeur_person_occupancy
-                    state: on
-                card:
-                  camera_view: auto
-                  type: picture-glance
-                  title: Persoon
-                  camera_image: camera.cam_voordeur_person
-                  entities:
-                    - entity: binary_sensor.cam_voordeur_person_occupancy
       - type: custom:auto-entities
         filter:
           include:
@@ -1086,9 +1010,10 @@ views:
           - type: horizontal-stack
             cards:
               - type: custom:mushroom-entity-card
-                entity: sensor.sensor_stal_ponies_temperature
-              - type: custom:mushroom-entity-card
-                entity: sensor.lumi_lumi_weather_temperature
+                entity: sensor.konijnensensor_temperature
+                primary_info: state
+                secondary_info: name
+                name: Konijnen binnen
           - camera_view: auto
             type: picture-glance
             title: Voordeur
